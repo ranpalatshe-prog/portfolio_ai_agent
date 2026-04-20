@@ -109,7 +109,21 @@
   </div>
 <script src="./config.js"></script>
   <script>
-    const API_BASE_URL = "http://127.0.0.1:8000";
+    const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
+
+     async function loginToApp() {
+    const email = document.getElementById("email").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
 
     function setAuthenticatedUser(token, user) {
       localStorage.setItem("portfolio_auth_token", token);
@@ -173,6 +187,7 @@
     }
 
     validateExistingLogin();
+    }
   </script>
 </body>
 </html>
