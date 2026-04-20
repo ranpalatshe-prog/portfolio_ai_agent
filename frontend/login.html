@@ -108,86 +108,79 @@
     </div>
   </div>
 <script src="./config.js"></script>
-  <script>
-    const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
+<script>
+  const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
 
-     async function loginToApp() {
-    const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value.trim();
+  function setAuthenticatedUser(token, user) {
+    localStorage.setItem("portfolio_auth_token", token);
+    localStorage.setItem("portfolio_auth_user", JSON.stringify(user));
+  }
 
-    const response = await fetch(`${API_BASE_URL}/login`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({ email, password })
-    });
+  function getAuthToken() {
+    return localStorage.getItem("portfolio_auth_token") || "";
+  }
 
-    const data = await response.json();
+  async function validateExistingLogin() {
+    const token = getAuthToken();
+    if (!token) return;
 
-    function setAuthenticatedUser(token, user) {
-      localStorage.setItem("portfolio_auth_token", token);
-      localStorage.setItem("portfolio_auth_user", JSON.stringify(user));
-    }
+    try {
+      const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
+      const data = await response.json();
 
-    function getAuthToken() {
-      return localStorage.getItem("portfolio_auth_token") || "";
-    }
-
-    async function validateExistingLogin() {
-      const token = getAuthToken();
-      if (!token) return;
-
-      try {
-        const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
-        const data = await response.json();
-
-        if (response.ok && data.authenticated) {
-          window.location.href = "index.html";
-        }
-      } catch (error) {
-        // לא עושים כלום
+      if (response.ok && data.authenticated) {
+        window.location.href = "index.html";
       }
+    } catch (error) {
+      // לא עושים כלום
+    }
+  }
+
+  async function loginToApp() {
+    const emailInput = document.getElementById("login-email");
+    const passwordInput = document.getElementById("login-password");
+    const loginMessage = document.getElementById("login-message");
+
+    if (!emailInput || !passwordInput || !loginMessage) {
+      alert("שדות ההתחברות לא נמצאו בדף.");
+      return;
     }
 
-    async function loginToApp() {
-      const email = document.getElementById("login-email")?.value?.trim() || "";
-      const password = document.getElementById("login-password")?.value || "";
-      const loginMessage = document.getElementById("login-message");
+    const email = emailInput.value.trim();
+    const password = passwordInput.value;
 
-      if (!email || !password) {
-        loginMessage.innerHTML = `<div class="error-box">יש להזין אימייל וסיסמה.</div>`;
-        return;
+    if (!email || !password) {
+      loginMessage.innerHTML = `<div class="error-box">יש להזין אימייל וסיסמה.</div>`;
+      return;
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/login`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "התחברות נכשלה");
       }
 
-      try {
-        const response = await fetch(`${API_BASE_URL}/login`, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({ email, password })
-        });
+      setAuthenticatedUser(data.token, data.user);
+      loginMessage.innerHTML = `<div class="success-box">התחברת בהצלחה.</div>`;
 
-        const data = await response.json();
-
-        if (!response.ok) {
-          throw new Error(data.detail || "התחברות נכשלה");
-        }
-
-        setAuthenticatedUser(data.token, data.user);
-        loginMessage.innerHTML = `<div class="success-box">התחברת בהצלחה.</div>`;
-
-        setTimeout(() => {
-          window.location.href = "index.html";
-        }, 400);
-      } catch (error) {
-        loginMessage.innerHTML = `<div class="error-box">${error.message}</div>`;
-      }
+      setTimeout(() => {
+        window.location.href = "index.html";
+      }, 400);
+    } catch (error) {
+      loginMessage.innerHTML = `<div class="error-box">${error.message}</div>`;
     }
+  }
 
-    validateExistingLogin();
-    }
-  </script>
+  validateExistingLogin();
+</script>
 </body>
 </html>
