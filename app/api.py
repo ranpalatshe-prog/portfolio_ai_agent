@@ -64,11 +64,12 @@ FRONTEND_URL = os.getenv("FRONTEND_URL", "http://localhost:5500")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[
+        "https://portfolio-frontend-si1a.onrender.com",
+        "https://portfolio-ai-agent-1.onrender.com",
         "http://127.0.0.1:5500",
         "http://localhost:5500",
-        FRONTEND_URL,
     ],
-    allow_credentials=True,
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
