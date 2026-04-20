@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>פתיחת פרופיל קיים</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      color: #111827;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      margin: 0 0 10px 0;
+      font-size: 32px;
+    }
+
+    .header p {
+      margin: 0;
+      color: #475569;
+      line-height: 1.6;
+    }
+
+    .profiles-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .profile-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 18px;
+      background: #f8fafc;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .profile-card:hover {
+      border-color: #2563eb;
+      background: #eff6ff;
+    }
+
+    .profile-card.selected {
+      border-color: #2563eb;
+      background: #dbeafe;
+      box-shadow: 0 0 0 2px rgba(37, 99, 235, 0.08);
+    }
+
+    .profile-name {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+
+    .profile-meta {
+      color: #475569;
+      line-height: 1.8;
+      font-size: 15px;
+    }
+
+    .empty-state {
+      text-align: center;
+      color: #64748b;
+      padding: 30px 10px;
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      margin-top: 24px;
+      background: #f8fafc;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-danger {
+      background: #dc2626;
+      color: white;
+    }
+
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 700px) {
+      .actions {
+        flex-direction: column;
+      }
+
+      .header h1 {
+        font-size: 26px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="card">
+      <div class="header">
+        <h1>פתיחת פרופיל קיים</h1>
+        <p>בחר את פרופיל ההשקעות שברצונך לפתוח.</p>
+      </div>
+
+      <div id="profiles-list" class="profiles-list"></div>
+      <div id="empty-state" class="empty-state" style="display: none;">
+        לא נמצאו פרופילים שמורים עדיין.
+      </div>
+
+      <div class="actions">
+       <button id="back-btn" class="btn btn-secondary" type="button">חזרה</button>
+       <button id="delete-profile-btn" class="btn btn-danger" type="button" disabled>מחק פרופיל</button>
+       <button id="open-profile-btn" class="btn btn-primary" type="button" disabled>פתח פרופיל</button>
+      </div>
+    </div>
+  </div>
+<script src="./config.js"></script>
+  <script>
+    let selectedProfileId = null;
+
+    function formatDate(dateString) {
+      if (!dateString) return "-";
+      const date = new Date(dateString);
+      return date.toLocaleString("he-IL");
+    }
+
+    function renderProfiles() {
+      const profiles =
+        JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+      const listEl = document.getElementById("profiles-list");
+      const emptyEl = document.getElementById("empty-state");
+      const openBtn = document.getElementById("open-profile-btn");
+      const deleteBtn = document.getElementById("delete-profile-btn");
+
+      listEl.innerHTML = "";
+
+      if (!profiles.length) {
+       emptyEl.style.display = "block";
+       openBtn.disabled = true;
+       deleteBtn.disabled = true;
+      return;
+}
+
+      emptyEl.style.display = "none";
+
+      if (!selectedProfileId) {
+      openBtn.disabled = true;
+      deleteBtn.disabled = true;
+      }
+
+      profiles.forEach(profile => {
+        const card = document.createElement("div");
+        card.className = "profile-card";
+        if (selectedProfileId === profile.id) {
+          card.classList.add("selected");
+        }
+
+        card.innerHTML = `
+          <div class="profile-name">${profile.portfolio_name || "ללא שם"}</div>
+          <div class="profile-meta">
+            רמת סיכון: ${profile.risk_profile || "-"}<br>
+            מסלול: ${profile.selected_track || "-"}<br>
+            חשיפה מנייתית מומלצת: ${profile.recommended_equity_exposure || "-"}<br>
+            נוצר בתאריך: ${formatDate(profile.created_at)}
+          </div>
+        `;
+
+        card.addEventListener("click", () => {
+         selectedProfileId = profile.id;
+         renderProfiles();
+         openBtn.disabled = false;
+         deleteBtn.disabled = false;
+        });
+
+        listEl.appendChild(card);
+      });
+    }
+
+    document.getElementById("back-btn").addEventListener("click", () => {
+      window.location.href = "index.html";
+    });
+
+    document.getElementById("delete-profile-btn").addEventListener("click", () => {
+  const profiles =
+    JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+  const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
+
+  if (!selectedProfile) {
+    alert("נא לבחור פרופיל למחיקה");
+    return;
+  }
+
+  const confirmed = confirm(`האם למחוק את הפרופיל "${selectedProfile.portfolio_name}"?`);
+
+  if (!confirmed) {
+    return;
+  }
+
+  const updatedProfiles = profiles.filter(profile => profile.id !== selectedProfileId);
+
+  localStorage.setItem(
+    "saved_portfolio_profiles",
+    JSON.stringify(updatedProfiles)
+  );
+
+  const activeProfile = JSON.parse(localStorage.getItem("portfolio_onboarding_profile") || "null");
+
+  if (activeProfile && activeProfile.id === selectedProfileId) {
+    localStorage.removeItem("portfolio_onboarding_profile");
+  }
+
+  selectedProfileId = null;
+  renderProfiles();
+});
+
+    document.getElementById("open-profile-btn").addEventListener("click", () => {
+      const profiles =
+        JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+      const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
+
+      if (!selectedProfile) {
+        alert("נא לבחור פרופיל");
+        return;
+      }
+
+      localStorage.setItem(
+        "portfolio_onboarding_profile",
+        JSON.stringify(selectedProfile)
+      );
+
+      window.location.href = "app.html";
+    });
+
+    renderProfiles();
+    requireAuth();
+  </script>
+</body>
+</html>

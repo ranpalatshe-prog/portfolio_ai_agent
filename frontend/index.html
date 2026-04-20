@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8">
+  <title>יועץ תיק השקעות</title>
+
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      direction: rtl;
+    }
+
+    .landing-page {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+    }
+
+    .landing-card {
+      width: 100%;
+      max-width: 500px;
+      background: white;
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .logo {
+      font-size: 40px;
+      font-weight: bold;
+      color: #2563eb;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: #666;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      width: 100%;
+      padding: 15px;
+      margin-bottom: 12px;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      cursor: pointer;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+    }
+  </style>
+</head>
+
+<body>
+
+<div class="landing-page">
+  <div class="landing-card">
+
+    <div class="logo">PIA</div>
+
+    <h1>יועץ תיק השקעות</h1>
+    <p>בחר איך תרצה להתחיל</p>
+
+    <button class="btn primary" onclick="goToNewProfile()">יצירת פרופיל חדש</button>
+    <button class="btn secondary" onclick="goToExistingProfile()">פתיחת פרופיל קיים</button>
+
+  </div>
+</div>
+
+<div style="text-align: left; margin-bottom: 12px;">
+  <button type="button" onclick="logoutFromApp()" style="padding: 10px 14px; border: none; border-radius: 8px; cursor: pointer;">
+    התנתק
+  </button>
+</div>
+<script src="./config.js"></script>
+<script>
+  function goToNewProfile() {
+    document.body.style.transition = "opacity 0.3s ease";
+    document.body.style.opacity = 0;
+
+    setTimeout(() => {
+      window.location.href = "onboarding.html";
+    }, 300);
+  }
+
+  function goToExistingProfile() {
+    document.body.style.transition = "opacity 0.3s ease";
+    document.body.style.opacity = 0;
+
+    setTimeout(() => {
+      window.location.href = "existing-profiles.html";
+    }, 300);
+  }
+
+function logoutFromApp() {
+  localStorage.removeItem("portfolio_auth_token");
+  localStorage.removeItem("portfolio_auth_user");
+  window.location.href = "login.html";
+}
+
+const API_BASE_URL = "http://127.0.0.1:8000";
+
+function getAuthToken() {
+  return localStorage.getItem("portfolio_auth_token") || "";
+}
+
+function clearAuthenticatedUser() {
+  localStorage.removeItem("portfolio_auth_token");
+  localStorage.removeItem("portfolio_auth_user");
+}
+
+async function requireAuth() {
+  const token = getAuthToken();
+
+  if (!token) {
+    window.location.href = "login.html";
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.authenticated) {
+      clearAuthenticatedUser();
+      window.location.href = "login.html";
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    clearAuthenticatedUser();
+    window.location.href = "login.html";
+    return false;
+  }
+}
+
+requireAuth();
+</script>
+
+</body>
+</html>

@@ -1,0 +1,13 @@
+{
+  "risk_level": "medium",
+  "investment_horizon_years": 10,
+  "monthly_new_cash": 5000,
+  "tax_sensitive": true,
+  "base_currency": "ILS",
+  "allow_equity": true,
+  "allow_bond": true,
+  "allow_cash": true,
+  "allow_crypto": false,
+  "allow_real_estate": false,
+  "prefers_passive_funds": true
+}

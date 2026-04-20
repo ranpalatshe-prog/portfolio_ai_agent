@@ -1,0 +1,5197 @@
+<!DOCTYPE html>
+<html lang="he">
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>    
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portfolio AI Agent</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      max-width: 1200px;
+      margin: 30px auto;
+      padding: 20px;
+      line-height: 1.6;
+      background: #f9fafb;
+    }
+
+    h1, h2, h3 {
+      margin-bottom: 10px;
+    }
+
+    .section {
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      padding: 8px;
+      box-sizing: border-box;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+    }
+
+    button {
+      padding: 12px 18px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      margin-left: 10px;
+      font-size: 14px;
+    }
+
+    .primary {
+      background: #2563eb;
+      color: white;
+    }
+
+    .secondary {
+      background: #e5e7eb;
+    }
+
+    .asset-card, .result-card {
+      border: 1px solid #ddd;
+      border-radius: 10px;
+      padding: 12px;
+      margin-bottom: 12px;
+      background: #fff;
+    }
+
+    .metric {
+      margin-bottom: 6px;
+    }
+
+    .tag {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 12px;
+      margin-left: 6px;
+      background: #eef2ff;
+    }
+
+    .warning {
+      background: #fef2f2;
+      border-right: 4px solid #dc2626;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .strength {
+      background: #f0fdf4;
+      border-right: 4px solid #16a34a;
+      padding: 8px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+        table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: right;
+      vertical-align: top;
+    }
+
+    th {
+      background: #f3f4f6;
+    }
+
+    .preview-bad {
+      background: #fef2f2;
+    }
+
+    .preview-good {
+      background: #f0fdf4;
+    }
+
+    .recommendation-buy {
+      border-right: 4px solid #2563eb;
+    }
+
+    .recommendation-hold {
+      border-right: 4px solid #16a34a;
+    }
+
+    .recommendation-reduce {
+      border-right: 4px solid #dc2626;
+    }
+
+    .muted {
+      color: #666;
+      font-size: 14px;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .advanced-fields {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed #ccc;
+    }
+
+    .field-help {
+      font-size: 12px;
+      color: #666;
+      margin-top: 3px;
+    }
+
+    .toggle-advanced {
+      margin-top: 10px;
+    }
+
+    .error-box {
+      background: #fef2f2;
+      border: 1px solid #fecaca;
+      color: #991b1b;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    .success-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      color: #166534;
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+
+    pre {
+      background: #111827;
+      color: #f9fafb;
+      padding: 12px;
+      border-radius: 8px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+    }
+
+    @media (max-width: 900px) {
+      .grid, .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .trend-good {
+      background: #f0fdf4;
+      border-right: 4px solid #16a34a;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .trend-bad {
+      background: #fef2f2;
+      border-right: 4px solid #dc2626;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .trend-neutral {
+      background: #f8fafc;
+      border-right: 4px solid #64748b;
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+
+    .portfolio-dashboard {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.dashboard-header {
+  margin-bottom: 20px;
+}
+
+.dashboard-header h1 {
+  margin: 0 0 8px 0;
+  font-size: 28px;
+}
+
+.dashboard-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 15px;
+}
+
+.portfolio-summary-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 18px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.summary-title {
+  font-size: 14px;
+  color: #6b7280;
+  margin-bottom: 10px;
+}
+
+.summary-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: #111827;
+}
+
+.summary-value.positive {
+  color: #15803d;
+}
+
+.summary-value.negative {
+  color: #b91c1c;
+}
+
+.portfolio-allocation {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 24px;
+  margin-bottom: 24px;
+}
+
+.portfolio-allocation h2 {
+  margin: 0 0 20px 0;
+  font-size: 28px;
+}
+
+.allocation-container {
+  display: grid;
+  grid-template-columns: 360px 1fr;
+  gap: 32px;
+  align-items: center;
+}
+
+.donut-wrapper {
+  position: relative;
+  width: 320px;
+  height: 320px;
+  margin: 0 auto;
+}
+
+.donut-wrapper canvas {
+  width: 320px !important;
+  height: 320px !important;
+}
+
+.donut-center {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  pointer-events: none;
+}
+
+.donut-center-label {
+  font-size: 18px;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+#portfolio-total-center {
+  font-size: 34px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.2;
+}
+
+#allocation-legend {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+.legend-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px 16px;
+  background: #f9fafb;
+}
+
+.legend-label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.legend-value {
+  color: #374151;
+}
+
+@media (max-width: 900px) {
+  .allocation-container {
+    grid-template-columns: 1fr;
+  }
+
+  .donut-wrapper {
+    width: 260px;
+    height: 260px;
+  }
+
+  .donut-wrapper canvas {
+    width: 260px !important;
+    height: 260px !important;
+  }
+
+  #portfolio-total-center {
+    font-size: 28px;
+  }
+}
+.assets-toolbar {
+  margin-bottom: 16px;
+}
+
+.asset-summary-list {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.asset-summary-row {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 1fr auto auto;
+  gap: 12px;
+  align-items: center;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 16px;
+  padding: 14px 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
+}
+
+.asset-summary-main {
+  font-weight: 700;
+  color: #111827;
+}
+
+.asset-summary-meta {
+  color: #475569;
+  font-size: 14px;
+}
+
+.asset-summary-value {
+  font-weight: 700;
+  color: #111827;
+}
+
+.asset-summary-actions {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 9999;
+}
+
+.modal-card {
+  width: 100%;
+  max-width: 760px;
+  background: #ffffff;
+  border-radius: 22px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.18);
+  padding: 22px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.large-modal {
+  max-width: 920px;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 24px;
+}
+
+.modal-close-btn {
+  border: none;
+  background: #f1f5f9;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+.modal-actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.asset-details-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+
+.asset-details-item {
+  background: #f8fafc;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  padding: 14px;
+}
+
+.asset-details-label {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 6px;
+}
+
+.asset-details-value {
+  font-size: 16px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.5;
+}
+
+@media (max-width: 900px) {
+  .asset-summary-row {
+    grid-template-columns: 1fr;
+  }
+
+  .asset-summary-actions {
+    justify-content: flex-start;
+  }
+
+  .asset-details-grid {
+    grid-template-columns: 1fr;
+  }
+}
+.active-profile-banner {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  background: #eff6ff;
+  border: 1px solid #bfdbfe;
+  border-radius: 16px;
+  padding: 16px;
+  margin-bottom: 20px;
+}
+
+.portfolio-history-card {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 20px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.portfolio-history-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.portfolio-history-header h2 {
+  margin: 0 0 6px 0;
+  font-size: 28px;
+}
+
+.history-range-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.history-range-btn {
+  background: #f3f4f6;
+  color: #111827;
+  border: 1px solid #d1d5db;
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: 14px;
+}
+
+.history-range-btn.active {
+  background: #2563eb;
+  color: white;
+  border-color: #2563eb;
+}
+
+.portfolio-history-meta {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.portfolio-history-chart-wrap {
+  background: #f8fafc;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+#portfolio-history-chart {
+  max-height: 320px;
+}
+
+  </style>
+</head>
+<body>
+  <h1>יועץ תיק השקעות דיגיטלי</h1>
+<section id="active-profile-banner" class="active-profile-banner">
+  <div><strong>תיק פעיל:</strong> <span id="active-profile-name">-</span></div>
+  <div><strong>רמת סיכון:</strong> <span id="active-profile-risk">-</span></div>
+  <div><strong>מסלול:</strong> <span id="active-profile-track">-</span></div>
+</section>
+  <div class="section">
+    <h2>נכסים בתיק</h2>
+
+    <div id="csv-mapping-section" class="hidden">
+      <h3>מיפוי עמודות CSV</h3>
+      <div class="field-help">בחר עבור כל שדה באפליקציה איזו עמודה בקובץ מתאימה לו.</div>
+
+      <div class="grid" style="margin-top: 12px;">
+        <div>
+          <label for="mapping-template-name">שם תבנית מיפוי</label>
+          <input id="mapping-template-name" type="text" placeholder="למשל: בנק לאומי / IBKR" />
+        </div>
+
+        <div>
+          <label for="mapping-template-select">תבנית שמורה</label>
+          <select id="mapping-template-select">
+            <option value="">-- בחר תבנית --</option>
+          </select>
+        </div>
+      </div>
+
+      <div style="margin-top: 12px;">
+        <button class="secondary" type="button" onclick="saveMappingTemplate()">שמור תבנית</button>
+        <button class="secondary" type="button" onclick="loadSelectedMappingTemplate()">טען תבנית</button>
+        <button class="secondary" type="button" onclick="deleteSelectedMappingTemplate()">מחק תבנית</button>
+      </div>
+
+           <div id="csv-mapping-fields" class="grid" style="margin-top: 12px;"></div>
+
+      <div style="margin-top: 12px;">
+        <button class="secondary" type="button" onclick="previewCsvImport()">הצג תצוגה מקדימה</button>
+        <button class="secondary" type="button" onclick="completeCsvImport()" style="margin-right: 8px;">
+          השלם ייבוא לפי המיפוי
+        </button>
+      </div>
+
+      <div id="csv-preview-section" class="hidden" style="margin-top: 18px;">
+        <h3>תצוגה מקדימה לפני ייבוא</h3>
+        <div class="field-help">להלן מספר שורות אחרי המיפוי. בדוק שהערכים נראים תקינים.</div>
+        <div id="csv-preview-table-container" style="margin-top: 12px;"></div>
+      </div>
+    </div>
+
+    <section id="portfolio-dashboard" class="portfolio-dashboard">
+<section class="portfolio-allocation">
+  <h2>התיק שלך</h2>
+
+  <div class="allocation-container">
+    <div class="donut-wrapper">
+      <canvas id="portfolioChart"></canvas>
+      <div class="donut-center">
+        <div class="donut-center-label">שווי תיק</div>
+        <div id="portfolio-total-center">0 ₪</div>
+      </div>
+    </div>
+
+    <div id="allocation-legend"></div>
+  </div>
+</section>
+  <div class="dashboard-header">
+    <h1>פרופיל תיק ההשקעות</h1>
+    <p>תמונה כוללת של מצב התיק שלך</p>
+  </div>
+
+  <div class="portfolio-summary-cards">
+    <div class="summary-card">
+      <div class="summary-title">כרגע יש לך</div>
+      <div class="summary-value" id="summary-current-value">0 ₪</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-title">השקעת עד כה</div>
+      <div class="summary-value" id="summary-cost-basis">0 ₪</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-title">הרווח שלך עד כה</div>
+      <div class="summary-value" id="summary-profit">0 ₪</div>
+    </div>
+
+    <div class="summary-card">
+      <div class="summary-title">תשואה כוללת</div>
+      <div class="summary-value" id="summary-return">0%</div>
+    </div>
+  </div>
+</section>
+
+<div class="portfolio-history-card">
+  <div class="portfolio-history-header">
+    <div>
+      <h2>ביצועי התיק</h2>
+      <div class="muted">מעקב היסטורי לפי שמירות ועדכונים שבוצעו באפליקציה</div>
+    </div>
+
+    <div class="history-range-buttons">
+      <button type="button" class="history-range-btn active" data-range="1m">1ח</button>
+      <button type="button" class="history-range-btn" data-range="3m">3ח</button>
+      <button type="button" class="history-range-btn" data-range="6m">6ח</button>
+      <button type="button" class="history-range-btn" data-range="1y">1ש</button>
+      <button type="button" class="history-range-btn" data-range="all">הכל</button>
+    </div>
+  </div>
+
+  <div class="portfolio-history-meta">
+    <div>
+      <div class="summary-title">שווי נוכחי</div>
+      <div class="summary-value" id="history-current-value">0 ₪</div>
+    </div>
+
+    <div>
+      <div class="summary-title">שינוי בתקופה הנבחרת</div>
+      <div class="summary-value" id="history-period-change">0 ₪</div>
+    </div>
+
+    <div>
+      <div class="summary-title">תשואה בתקופה הנבחרת</div>
+      <div class="summary-value" id="history-period-return">0%</div>
+    </div>
+  </div>
+
+  <div class="portfolio-history-chart-wrap">
+    <canvas id="portfolio-history-chart"></canvas>
+  </div>
+</div>
+
+<div class="assets-toolbar">
+  <button id="open-add-asset-modal-btn" class="secondary" type="button">הוסף נכס</button>
+  <button id="update-prices-btn" class="btn btn-primary" type="button">עדכן שערים</button>
+  <button id="save-portfolio-changes-btn" class="btn btn-primary" type="button">שמור שינויים</button>
+</div>
+
+<div id="asset-summary-list" class="asset-summary-list"></div>
+
+<div id="asset-modal" class="modal-overlay hidden">
+  <div class="modal-card large-modal">
+    <div class="modal-header">
+      <h3>הוספת נכס</h3>
+      <button id="close-asset-modal-btn" class="modal-close-btn" type="button">✕</button>
+    </div>
+
+    <div id="asset-form-modal-body"></div>
+
+    <div class="modal-actions">
+      <button id="confirm-add-asset-btn" class="btn btn-primary" type="button">הזן נכס</button>
+    </div>
+  </div>
+</div>
+
+<div id="asset-details-modal" class="modal-overlay hidden">
+  <div class="modal-card large-modal">
+    <div class="modal-header">
+      <h3>פרטי נכס</h3>
+      <button id="close-asset-details-modal-btn" class="modal-close-btn" type="button">✕</button>
+    </div>
+
+    <div id="asset-details-modal-body"></div>
+
+    <div class="modal-actions">
+      <button id="close-asset-details-btn" class="btn btn-secondary" type="button">סגור</button>
+    </div>
+  </div>
+</div>
+
+<div id="assets-container" style="display: none;"></div>
+
+  <div style="margin-bottom: 14px;">
+      <label for="csv-file">ייבוא קובץ CSV</label>
+      <input id="csv-file" type="file" accept=".csv" />
+      <div class="field-help">
+        אפשר להעלות קובץ CSV עם שורת כותרת. לאחר מכן תתבקש למפות את העמודות.
+      </div>
+      <button class="secondary" type="button" onclick="prepareCsvImport()" style="margin-top: 10px;">
+        טען קובץ והכן מיפוי
+      </button>
+    </div>
+
+  <div class="section">
+    <button class="primary" onclick="submitPortfolio()">נתח תיק והשג המלצות</button>
+    <button class="secondary" type="button" onclick="generateAiPrompt()">פרומפט ל-AI</button>
+    <button class="secondary" onclick="fillExampleData()">מלא נתוני דוגמה</button>
+    <div id="message-box" style="margin-top: 12px;"></div>
+</div>
+
+<div class="section hidden" id="ai-prompt-section">
+  <h2>פרומפט מוכן למנוע AI</h2>
+  <div class="field-help">
+    הטקסט הבא נבנה אוטומטית על בסיס התיק והפרופיל הפעיל, ואפשר להעתיק אותו לכל מנוע AI.
+  </div>
+
+  <div style="margin-top: 12px;">
+    <button class="secondary" type="button" onclick="copyAiPromptToClipboard()">העתק ללוח</button>
+  </div>
+
+  <textarea id="ai-prompt-output" rows="18" style="margin-top: 12px; font-family: Arial, sans-serif;"></textarea>
+</div>
+
+<div class="section hidden" id="free-cash-section">
+  <h2>שימוש בכסף חופשי</h2>
+  <div class="field-help">אחרי ניתוח התיק, אפשר להזין סכום פנוי ולקבל רעיונות לשימוש חכם בו.</div>
+
+  <div class="grid" style="margin-top: 12px;">
+    <div>
+      <label for="free-cash-amount">סכום כסף חופשי (₪)</label>
+      <input id="free-cash-amount" type="number" value="0" step="100" />
+    </div>
+  </div>
+
+  <div style="margin-top: 12px;">
+    <button class="primary" type="button" onclick="generateFreeCashRecommendations()">קבל המלצות לשימוש בכסף</button>
+  </div>
+
+  <div id="free-cash-result" style="margin-top: 16px;"></div>
+</div>
+
+  <div class="section">
+    <h2>היסטוריית ניתוחים</h2>
+
+  <div class="section">
+    <h2>השוואה בין ניתוחים</h2>
+
+    <div class="grid">
+      <div>
+        <label for="compare-analysis-a">ניתוח ראשון</label>
+        <select id="compare-analysis-a">
+          <option value="">-- בחר ניתוח ראשון --</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="compare-analysis-b">ניתוח שני</label>
+        <select id="compare-analysis-b">
+          <option value="">-- בחר ניתוח שני --</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <button class="secondary" type="button" onclick="compareSelectedAnalyses()">השווה בין ניתוחים</button>
+    </div>
+
+    <div id="analysis-comparison" style="margin-top: 16px;"></div>
+  </div>
+
+    <div class="grid">
+      <div>
+        <label for="analysis-history-select">ניתוח שמור</label>
+        <select id="analysis-history-select">
+          <option value="">-- בחר ניתוח --</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="analysis-history-note">תיאור קצר לניתוח</label>
+        <input id="analysis-history-note" type="text" placeholder="למשל: לפני הפקדה חודשית" />
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <button class="secondary" type="button" onclick="saveCurrentAnalysisToHistory()">שמור ניתוח נוכחי</button>
+      <button class="secondary" type="button" onclick="loadSelectedAnalysisHistory()">טען ניתוח</button>
+      <button class="secondary" type="button" onclick="deleteSelectedAnalysisHistory()">מחק ניתוח</button>
+      <button class="secondary" type="button" onclick="clearAllAnalysisHistory()">נקה היסטוריה</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>השוואת תרחישים</h2>
+
+    <div class="grid">
+      <div>
+        <label for="scenario-type">סוג תרחיש</label>
+        <select id="scenario-type">
+          <option value="add_cash_to_asset">הוספת כסף לנכס קיים</option>
+          <option value="reduce_asset">צמצום נכס קיים</option>
+          <option value="change_risk_level">שינוי רמת סיכון</option>
+        </select>
+      </div>
+
+      <div>
+        <label for="scenario-asset-name">שם נכס לתרחיש</label>
+        <input id="scenario-asset-name" type="text" placeholder="למשל: MTF מחקה S&P500" />
+      </div>
+
+      <div>
+        <label for="scenario-amount">סכום / אחוז</label>
+        <input id="scenario-amount" type="number" value="5000" />
+      </div>
+
+      <div>
+        <label for="scenario-risk-level">רמת סיכון חדשה</label>
+        <select id="scenario-risk-level">
+          <option value="low">נמוכה</option>
+          <option value="medium" selected>בינונית</option>
+          <option value="high">גבוהה</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <button class="secondary" type="button" onclick="runScenarioAnalysis()">הרץ תרחיש</button>
+    </div>
+
+    <div id="scenario-result" style="margin-top: 16px;"></div>
+  </div>
+
+  <div class="section">
+    <h2>תרחיש חכם אוטומטי</h2>
+
+    <div class="grid">
+      <div>
+        <label for="smart-scenario-goal">מטרת התרחיש</label>
+        <select id="smart-scenario-goal">
+          <option value="improve_diversification">שיפור פיזור</option>
+          <option value="reduce_risk">הורדת סיכון</option>
+          <option value="reduce_overlap">צמצום חפיפות</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <button class="secondary" type="button" onclick="runSmartScenario()">הרץ תרחיש חכם</button>
+    </div>
+
+    <div id="smart-scenario-result" style="margin-top: 16px;"></div>
+  </div>
+
+  <div class="section">
+    <h2>Top 3 תרחישים חכמים</h2>
+
+    <div class="grid">
+      <div>
+        <label for="best-scenario-goal">מטרת האופטימיזציה</label>
+        <select id="best-scenario-goal">
+          <option value="improve_diversification">שיפור פיזור</option>
+          <option value="reduce_risk">הורדת סיכון</option>
+          <option value="reduce_overlap">צמצום חפיפות</option>
+        </select>
+      </div>
+    </div>
+
+    <div style="margin-top: 12px;">
+      <button class="secondary" type="button" onclick="runTopSmartScenarios()">מצא את 3 התרחישים הטובים ביותר</button>
+    </div>
+
+    <div id="top-scenarios-result" style="margin-top: 16px;"></div>
+  </div>
+
+  <div id="dashboard" class="hidden">
+    <div class="dashboard-grid">
+      <div class="section">
+        <h2>סיכום תיק</h2>
+        <div id="portfolio-summary"></div>
+      </div>
+
+     <div class="score-explanation">
+      ${getScoreExplanation(asset.score || 0)}
+     </div>
+
+      <div class="section">
+        <h2>דוח סיכון</h2>
+        <div id="risk-summary"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>התפלגות התיק</h2>
+      <div style="max-width: 500px; margin: 0 auto;">
+        <canvas id="portfolio-pie-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>הקצאה נוכחית מול הקצאת יעד</h2>
+      <div style="max-width: 700px; margin: 0 auto;">
+        <canvas id="allocation-bar-chart"></canvas>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="section">
+        <h2>המלצות קנייה</h2>
+        <div id="buy-recommendations"></div>
+      </div>
+
+      <div class="section">
+        <h2>המלצות החזקה / צמצום</h2>
+        <div id="hold-reduce-recommendations"></div>
+      </div>
+    </div>
+
+    <div class="dashboard-grid">
+      <div class="section">
+        <h2>אזהרות</h2>
+        <div id="warnings"></div>
+      </div>
+
+      <div class="section">
+        <h2>נקודות חוזק</h2>
+        <div id="strengths"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <h2>חפיפות וכפילויות אפשריות</h2>
+      <div id="overlaps"></div>
+
+    <div class="section">
+     <h2>פיזור אמיתי בתיק</h2>
+     <div id="diversification"></div>
+    </div>
+
+    <div class="section">
+      <h2>איכות נתונים</h2>
+      <div id="data-quality"></div>
+    </div>
+
+    <div class="section">
+      <h2>הסבר מילולי</h2>
+      <div id="explanation"></div>
+    </div>
+
+    <div class="section">
+      <h2>דוח המלצות סופי ללקוח</h2>
+      <div id="client-report"></div>
+    </div>
+
+<div class="section">
+  <h2>הסבר AI</h2>
+  <div id="ai-explainer"></div>
+</div>
+<script src="./config.js"></script>
+<script>
+    let csvHeaders = [];
+    let csvRows = [];
+    let portfolioPieChart = null;
+    let allocationBarChart = null;
+    let portfolioHistoryChart = null;
+    let selectedHistoryRange = "1m"; 
+    
+const API_BASE_URL = "http://127.0.0.1:8000";
+    
+function getScoreExplanation(score) {
+  if (score >= 80) {
+    return "ציון גבוה - הנכס נראה חזק יחסית לפי המדדים שנבדקו.";
+  }
+  if (score >= 60) {
+    return "ציון טוב - הנכס במצב סביר, אך כדאי לעקוב.";
+  }
+  if (score >= 40) {
+    return "ציון בינוני - ייתכן שהנכס פחות מתאים לתיק.";
+  }
+  return "ציון נמוך - מומלץ לבדוק מחדש את התאמת הנכס.";
+}
+
+function getPortfolioHistoryStorageKey() {
+  const activeProfile = getActiveOnboardingProfile();
+
+  if (!activeProfile || !activeProfile.id) {
+    return "portfolio_value_history_default";
+  }
+
+  return `portfolio_value_history_${activeProfile.id}`;
+}
+
+function getPortfolioHistory() {
+  try {
+    return JSON.parse(localStorage.getItem(getPortfolioHistoryStorageKey()) || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function savePortfolioHistory(items) {
+  localStorage.setItem(getPortfolioHistoryStorageKey(), JSON.stringify(items));
+}
+
+function getCurrentPortfolioTotalValue() {
+  const assetCards = document.querySelectorAll("#assets-container .asset-card");
+
+  let total = 0;
+
+  assetCards.forEach(card => {
+    total += Number(card.querySelector(".current_value")?.value) || 0;
+  });
+
+  return Number(total.toFixed(2));
+}
+
+function addPortfolioHistorySnapshot(force = false) {
+  const totalValue = getCurrentPortfolioTotalValue();
+  const history = getPortfolioHistory();
+  const now = new Date();
+
+  const snapshot = {
+    timestamp: now.toISOString(),
+    total_value: totalValue
+  };
+
+  const lastItem = history[history.length - 1];
+
+  // לא לשמור יותר מדי נקודות זהות ברצף
+  if (!force && lastItem) {
+    const sameValue = Number(lastItem.total_value) === Number(snapshot.total_value);
+    const diffMs = new Date(snapshot.timestamp) - new Date(lastItem.timestamp);
+    const diffMinutes = diffMs / (1000 * 60);
+
+    if (sameValue && diffMinutes < 30) {
+      return;
+    }
+  }
+
+  history.push(snapshot);
+  savePortfolioHistory(history);
+}
+
+function filterPortfolioHistoryByRange(history, range) {
+  if (range === "all") {
+    return history;
+  }
+
+  const now = new Date();
+  const from = new Date(now);
+
+  if (range === "1m") from.setMonth(now.getMonth() - 1);
+  if (range === "3m") from.setMonth(now.getMonth() - 3);
+  if (range === "6m") from.setMonth(now.getMonth() - 6);
+  if (range === "1y") from.setFullYear(now.getFullYear() - 1);
+
+  return history.filter(item => new Date(item.timestamp) >= from);
+}
+
+function formatHistoryLabel(timestamp, range) {
+  const date = new Date(timestamp);
+
+  if (range === "1m") {
+    return date.toLocaleDateString("he-IL", { day: "2-digit", month: "2-digit" });
+  }
+
+  return date.toLocaleDateString("he-IL", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  });
+}
+
+function renderPortfolioHistoryChart() {
+  const canvas = document.getElementById("portfolio-history-chart");
+  if (!canvas) return;
+
+  const fullHistory = getPortfolioHistory();
+  const filteredHistory = filterPortfolioHistoryByRange(fullHistory, selectedHistoryRange);
+
+  const labels = filteredHistory.map(item => formatHistoryLabel(item.timestamp, selectedHistoryRange));
+  const values = filteredHistory.map(item => Number(item.total_value) || 0);
+
+  const currentValueEl = document.getElementById("history-current-value");
+  const periodChangeEl = document.getElementById("history-period-change");
+  const periodReturnEl = document.getElementById("history-period-return");
+
+  const currentValue = values.length ? values[values.length - 1] : 0;
+  const firstValue = values.length ? values[0] : 0;
+  const periodChange = currentValue - firstValue;
+  const periodReturn = firstValue > 0 ? (periodChange / firstValue) * 100 : 0;
+
+  if (currentValueEl) {
+    currentValueEl.textContent = formatCurrency(currentValue);
+  }
+
+  if (periodChangeEl) {
+    periodChangeEl.textContent = formatCurrency(periodChange);
+    periodChangeEl.classList.remove("positive", "negative");
+    if (periodChange > 0) periodChangeEl.classList.add("positive");
+    if (periodChange < 0) periodChangeEl.classList.add("negative");
+  }
+
+  if (periodReturnEl) {
+    periodReturnEl.textContent = formatPercent(periodReturn);
+    periodReturnEl.classList.remove("positive", "negative");
+    if (periodReturn > 0) periodReturnEl.classList.add("positive");
+    if (periodReturn < 0) periodReturnEl.classList.add("negative");
+  }
+
+  if (portfolioHistoryChart) {
+    portfolioHistoryChart.destroy();
+  }
+
+  portfolioHistoryChart = new Chart(canvas, {
+    type: "line",
+    data: {
+      labels,
+      datasets: [
+        {
+          label: "שווי תיק",
+          data: values,
+          fill: true,
+          tension: 0.35,
+          borderWidth: 3
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `שווי תיק: ${formatCurrency(context.raw)}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          ticks: {
+            callback: function(value) {
+              return `${Number(value).toLocaleString("he-IL")} ₪`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function bindPortfolioHistoryRangeButtons() {
+  const buttons = document.querySelectorAll(".history-range-btn");
+
+  buttons.forEach(button => {
+    button.addEventListener("click", () => {
+      selectedHistoryRange = button.dataset.range || "1m";
+
+      buttons.forEach(btn => btn.classList.remove("active"));
+      button.classList.add("active");
+
+      renderPortfolioHistoryChart();
+    });
+  });
+}
+
+function renderAllocationBarChart(data) {
+  const canvas = document.getElementById("allocation-bar-chart");
+
+  if (!canvas || !data) {
+    return;
+  }
+
+  const currentAllocation = data.current_allocation || {};
+  const targetAllocation = data.target_allocation || {};
+  
+  const labels = ["equity", "bond", "cash"];
+
+  const currentValues = labels.map(label => {
+    return Number(((currentAllocation[label] || 0) * 100).toFixed(2));
+  });
+
+  const targetValues = labels.map(label => {
+    return Number(((targetAllocation[label] || 0) * 100).toFixed(2));
+  });
+
+  if (allocationBarChart) {
+    allocationBarChart.destroy();
+  }
+
+  allocationBarChart = new Chart(canvas, {
+    type: "bar",
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: "הקצאה נוכחית (%)",
+          data: currentValues
+        },
+        {
+          label: "הקצאת יעד (%)",
+          data: targetValues
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100
+        }
+      },
+      plugins: {
+        legend: {
+          position: "bottom"
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return `${context.dataset.label}: ${context.raw}%`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function renderPortfolioPieChart(payload) {
+      const canvas = document.getElementById("portfolio-pie-chart");
+
+      if (!canvas || !payload || !payload.assets || payload.assets.length === 0) {
+        return;
+      }
+
+      const labels = payload.assets.map(asset => asset.instrument.asset_name);
+      const values = payload.assets.map(asset => asset.position.current_value);
+
+      const total = values.reduce((sum, value) => sum + value, 0);
+
+      if (portfolioPieChart) {
+        portfolioPieChart.destroy();
+      }
+
+      portfolioPieChart = new Chart(canvas, {
+        type: "pie",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              data: values
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: {
+              position: "bottom"
+            },
+            tooltip: {
+              callbacks: {
+                label: function(context) {
+                  const value = context.raw || 0;
+                  const percent = total > 0 ? ((value / total) * 100).toFixed(2) : 0;
+                  return `${context.label}: ${value.toLocaleString()} (${percent}%)`;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+function renderDataQuality(dataQuality) {
+      const container = document.getElementById("data-quality");
+      container.innerHTML = "";
+
+      if (!dataQuality) {
+        container.innerHTML = `<div class="muted">אין מידע על איכות הנתונים.</div>`;
+        return;
+      }
+
+      const summary = document.createElement("div");
+      summary.className = "result-card";
+      summary.innerHTML = `
+        <div><strong>רמת איכות כללית:</strong> ${dataQuality.quality_label}</div>
+        <div><strong>מספר דגלים:</strong> ${dataQuality.total_flags}</div>
+        <div><strong>קנס כולל:</strong> ${dataQuality.total_penalty}</div>
+      `;
+      container.appendChild(summary);
+
+      (dataQuality.warnings || []).forEach(warning => {
+        const el = document.createElement("div");
+        el.className = "warning";
+        el.textContent = warning;
+        container.appendChild(el);
+      });
+
+      (dataQuality.assets || []).forEach(asset => {
+        const card = document.createElement("div");
+        card.className = "result-card";
+
+        const flagsHtml = asset.flags && asset.flags.length
+          ? asset.flags.map(flag => `<li>${flag}</li>`).join("")
+          : "<li>לא זוהו בעיות.</li>";
+
+        card.innerHTML = `
+          <div><strong>נכס:</strong> ${asset.asset_name}</div>
+          <div><strong>קנס איכות נתונים:</strong> ${asset.penalty}</div>
+          <div><strong>מצב:</strong> ${asset.is_clean ? "תקין" : "דורש בדיקה"}</div>
+          <div><strong>דגלים:</strong></div>
+          <ul>${flagsHtml}</ul>
+        `;
+
+        container.appendChild(card);
+      });
+    }
+
+function renderClientReport(clientReport) {
+  const container = document.getElementById("client-report");
+  container.innerHTML = "";
+
+  if (!clientReport) {
+    container.innerHTML = `<div class="muted">אין דוח לקוח זמין.</div>`;
+    return;
+  }
+
+  const topActions = clientReport.top_actions || [];
+
+  const actionsHtml = topActions.length
+    ? topActions.map((action, index) => `
+        <div class="result-card">
+          <h3>פעולה מומלצת #${index + 1}</h3>
+          <div><strong>כותרת:</strong> ${action.title || "—"}</div>
+          <div><strong>עדיפות:</strong> ${action.priority || "—"}</div>
+          <div><strong>רמת ביטחון:</strong> ${action.confidence_label || "—"} (${action.confidence_score ?? "—"})</div>
+          <div><strong>תיאור:</strong> ${action.description || "—"}</div>
+          <div><strong>למה:</strong> ${action.why || "—"}</div>
+          <div style="margin-top:8px;"><strong>מה לבדוק ידנית לפני פעולה:</strong></div>
+          <ul>
+            ${(action.manual_checks || []).map(item => `<li>${item}</li>`).join("")}
+          </ul>
+        </div>
+      `).join("")
+    : `<div class="muted">אין כרגע פעולות מובילות להצגה.</div>`;
+
+  container.innerHTML = `
+    <div class="result-card">
+      <h3>סיכום מנהלים</h3>
+      <div>${clientReport.executive_summary || "—"}</div>
+    </div>
+
+    <div class="result-card">
+      <h3>סיכום מצב התיק</h3>
+      <div>${clientReport.summary_text || "—"}</div>
+    </div>
+
+    <div class="result-card">
+      <h3>מסקנה מרכזית</h3>
+      <div>${clientReport.main_conclusion || "—"}</div>
+    </div>
+
+    ${actionsHtml}
+
+    <div class="result-card">
+      <h3>הצהרת זהירות</h3>
+      <div>${clientReport.caution_statement || "—"}</div>
+    </div>
+  `;
+}
+
+    function renderExplanation(explanation) {
+      const container = document.getElementById("explanation");
+      container.innerHTML = "";
+
+      if (!explanation) {
+        container.innerHTML = `<div class="muted">אין הסבר זמין.</div>`;
+        return;
+      }
+
+      container.innerHTML = `
+        <div class="result-card">
+          <h3>סיכום מותאם אישית</h3>
+          <div>${explanation.summary || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>מה המערכת מבינה על רמת הסיכון שלך</h3>
+          <div>${explanation.risk_explanation || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>מה המערכת מבינה על הפיזור בתיק</h3>
+          <div>${explanation.diversification_explanation || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>למה הפעולות האלו מומלצות</h3>
+          <div>${explanation.action_explanation || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>מסקנה מרכזית</h3>
+          <div>${explanation.conclusion || "—"}</div>
+        </div>
+      `;
+    }
+
+    function renderDiversification(data) {
+     const container = document.getElementById("diversification");
+     container.innerHTML = "";
+
+     if (!data) {
+      container.innerHTML = `<div class="muted">אין נתונים.</div>`;
+      return;
+     }
+
+     const summary = document.createElement("div");
+     summary.innerHTML = `
+     <div><strong>מספר נכסים:</strong> ${data.num_assets}</div>
+     <div><strong>מספר קבוצות חשיפה:</strong> ${data.num_groups}</div>
+     `;
+     container.appendChild(summary);
+
+     // אזהרות
+     if (data.warnings && data.warnings.length > 0) {
+      data.warnings.forEach(w => {
+      const warn = document.createElement("div");
+      warn.className = "warning";
+      warn.textContent = w;
+      container.appendChild(warn);
+     });
+     }
+
+     // קבוצות
+     data.groups.forEach((group, index) => {
+      const card = document.createElement("div");
+     card.className = "result-card";
+
+     card.innerHTML = `
+      <div><strong>קבוצה ${index + 1}</strong></div>
+      <div><strong>מספר נכסים:</strong> ${group.size}</div>
+      <div><strong>שווי:</strong> ${formatMoney(group.total_value)}</div>
+      <div><strong>קטגוריות:</strong> ${group.categories.join(", ")}</div>
+      <div><strong>נכסים:</strong> ${group.assets.join(", ")}</div>
+     `;
+
+     container.appendChild(card);
+     });
+    }
+
+    function getSavedPortfolios() {
+      const raw = localStorage.getItem("saved_portfolios");
+      if (!raw) {
+        return {};
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    }
+
+    function saveAllPortfolios(portfolios) {
+      localStorage.setItem("saved_portfolios", JSON.stringify(portfolios));
+    }
+
+    function refreshSavedPortfoliosSelect() {
+      const select = document.getElementById("saved-portfolios-select");
+       if (!select) return;
+      const portfolios = getSavedPortfolios();
+
+      select.innerHTML = `<option value="">-- בחר תיק שמור --</option>`;
+
+      Object.keys(portfolios)
+        .sort((a, b) => a.localeCompare(b, "he"))
+        .forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+    }
+
+    function collectInvestorProfile() {
+     const onboarding = buildInvestorProfileFromOnboarding();
+
+     return {
+     risk_level: onboarding.risk_level || "medium",
+     investment_horizon_years:
+      onboarding.investment_horizon === "short_term" ? 2 :
+      onboarding.investment_horizon === "medium_term" ? 5 :
+      10,
+     monthly_new_cash: 0,
+     tax_sensitive: true,
+     base_currency: "ILS",
+     allow_equity: true,
+     allow_bond: true,
+     allow_cash: true,
+     allow_crypto: false,
+     allow_real_estate: false,
+     prefers_passive_funds: true
+     };
+    }
+
+    function fillInvestorProfile(investor) {
+      document.getElementById("risk_level").value = investor.risk_level ?? "medium";
+      document.getElementById("investment_horizon_years").value = investor.investment_horizon_years ?? 10;
+      document.getElementById("monthly_new_cash").value = investor.monthly_new_cash ?? 5000;
+      document.getElementById("tax_sensitive").value = String(investor.tax_sensitive ?? true);
+      document.getElementById("base_currency").value = investor.base_currency ?? "ILS";
+      document.getElementById("allow_equity").value = String(investor.allow_equity ?? true);
+      document.getElementById("allow_bond").value = String(investor.allow_bond ?? true);
+      document.getElementById("allow_cash").value = String(investor.allow_cash ?? true);
+      document.getElementById("allow_crypto").value = String(investor.allow_crypto ?? false);
+      document.getElementById("allow_real_estate").value = String(investor.allow_real_estate ?? false);
+      document.getElementById("prefers_passive_funds").value = String(investor.prefers_passive_funds ?? true);
+    }
+
+    let lastAnalysisResult = null;
+    let lastAnalysisPayload = null;
+
+    function getAnalysisHistory() {
+      const raw = localStorage.getItem("analysis_history");
+      if (!raw) {
+        return [];
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return [];
+      }
+    }
+
+    function saveAnalysisHistory(items) {
+      localStorage.setItem("analysis_history", JSON.stringify(items));
+    }
+
+    function refreshAnalysisHistorySelect() {
+      const select = document.getElementById("analysis-history-select");
+      const compareA = document.getElementById("compare-analysis-a");
+      const compareB = document.getElementById("compare-analysis-b");
+      const items = getAnalysisHistory();
+
+      const defaultOption = `<option value="">-- בחר ניתוח --</option>`;
+      const defaultOptionA = `<option value="">-- בחר ניתוח ראשון --</option>`;
+      const defaultOptionB = `<option value="">-- בחר ניתוח שני --</option>`;
+
+      select.innerHTML = defaultOption;
+      compareA.innerHTML = defaultOptionA;
+      compareB.innerHTML = defaultOptionB;
+
+      items.forEach(item => {
+        const label = `${item.created_at_label} — ${item.note}`;
+
+        const option1 = document.createElement("option");
+        option1.value = item.id;
+        option1.textContent = label;
+        select.appendChild(option1);
+
+        const option2 = document.createElement("option");
+        option2.value = item.id;
+        option2.textContent = label;
+        compareA.appendChild(option2);
+
+        const option3 = document.createElement("option");
+        option3.value = item.id;
+        option3.textContent = label;
+        compareB.appendChild(option3);
+      });
+    }
+
+    function compareSelectedAnalyses() {
+      const messageBox = document.getElementById("message-box");
+      const analysisAId = document.getElementById("compare-analysis-a").value;
+      const analysisBId = document.getElementById("compare-analysis-b").value;
+
+      if (!analysisAId || !analysisBId) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור שני ניתוחים להשוואה.</div>`;
+        return;
+      }
+
+      if (analysisAId === analysisBId) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור שני ניתוחים שונים.</div>`;
+        return;
+      }
+
+      const items = getAnalysisHistory();
+      const analysisA = items.find(item => item.id === analysisAId);
+      const analysisB = items.find(item => item.id === analysisBId);
+
+      if (!analysisA || !analysisB) {
+        messageBox.innerHTML = `<div class="error-box">אחד הניתוחים לא נמצא.</div>`;
+        return;
+      }
+
+      renderAnalysisComparison(analysisA, analysisB);
+      messageBox.innerHTML = `<div class="success-box">ההשוואה נבנתה בהצלחה.</div>`;
+    }
+
+    function getSafeNumber(value) {
+      return typeof value === "number" && !Number.isNaN(value) ? value : 0;
+    }
+
+    function getChangeText(newValue, oldValue, isPercent = false) {
+      const diff = getSafeNumber(newValue) - getSafeNumber(oldValue);
+
+      if (diff === 0) {
+        return "ללא שינוי";
+      }
+
+      if (isPercent) {
+        return diff > 0
+          ? `עלייה של ${(diff * 100).toFixed(2)}%`
+          : `ירידה של ${Math.abs(diff * 100).toFixed(2)}%`;
+      }
+
+      return diff > 0
+        ? `עלייה של ${diff.toFixed(2)}`
+        : `ירידה של ${Math.abs(diff).toFixed(2)}`;
+    }
+
+    function getTrendInfo(metricName, oldValue, newValue) {
+      const oldNum = getSafeNumber(oldValue);
+      const newNum = getSafeNumber(newValue);
+
+      if (newNum === oldNum) {
+        return {
+          label: "ללא שינוי מהותי",
+          className: "trend-neutral"
+        };
+      }
+
+      // במדדים האלה ירידה = טוב
+      const lowerIsBetter = [
+        "risk_score",
+        "warning_count",
+        "overlap_count",
+        "data_quality_penalty",
+        "data_quality_flags"
+      ];
+
+      // במדדים האלה עלייה = טוב
+      const higherIsBetter = [
+        "num_groups",
+        "cash_ratio",
+        "quality_score"
+      ];
+
+      if (lowerIsBetter.includes(metricName)) {
+        if (newNum < oldNum) {
+          return {
+            label: "שיפור",
+            className: "trend-good"
+          };
+        }
+        return {
+          label: "החמרה",
+          className: "trend-bad"
+        };
+      }
+
+      if (higherIsBetter.includes(metricName)) {
+        if (newNum > oldNum) {
+          return {
+            label: "שיפור",
+            className: "trend-good"
+          };
+        }
+        return {
+          label: "החמרה",
+          className: "trend-bad"
+        };
+      }
+
+      return {
+        label: newNum > oldNum ? "עלה" : "ירד",
+        className: "trend-neutral"
+      };
+    }
+
+    function getRiskTrendText(oldScore, newScore) {
+      const trend = getTrendInfo("risk_score", oldScore, newScore);
+      if (trend.label === "שיפור") {
+        return {
+          text: "רמת הסיכון ירדה ביחס לניתוח הקודם.",
+          className: trend.className
+        };
+      }
+      if (trend.label === "החמרה") {
+        return {
+          text: "רמת הסיכון עלתה ביחס לניתוח הקודם.",
+          className: trend.className
+        };
+      }
+      return {
+        text: "לא זוהה שינוי מהותי ברמת הסיכון.",
+        className: trend.className
+      };
+    }
+
+    function getDiversificationTrendText(oldGroups, newGroups, oldOverlaps, newOverlaps) {
+      if (newGroups > oldGroups && newOverlaps <= oldOverlaps) {
+        return {
+          text: "הפיזור האמיתי בתיק השתפר.",
+          className: "trend-good"
+        };
+      }
+
+      if (newGroups < oldGroups || newOverlaps > oldOverlaps) {
+        return {
+          text: "הפיזור האמיתי בתיק נחלש או שמספר החפיפות עלה.",
+          className: "trend-bad"
+        };
+      }
+
+      return {
+        text: "לא זוהה שינוי מהותי במבנה הפיזור.",
+        className: "trend-neutral"
+      };
+    }
+
+    function getDataQualityTrendText(oldPenalty, newPenalty, oldFlags, newFlags) {
+      if (newPenalty < oldPenalty || newFlags < oldFlags) {
+        return {
+          text: "איכות הנתונים השתפרה לעומת הניתוח הקודם.",
+          className: "trend-good"
+        };
+      }
+
+      if (newPenalty > oldPenalty || newFlags > oldFlags) {
+        return {
+          text: "איכות הנתונים נחלשה או זוהו יותר דגלים.",
+          className: "trend-bad"
+        };
+      }
+
+      return {
+        text: "לא זוהה שינוי מהותי באיכות הנתונים.",
+        className: "trend-neutral"
+      };
+    }
+    
+    function listRecommendationNames(items, action) {
+      return (items || [])
+        .filter(item => item.action === action)
+        .map(item => item.asset_name || `[${item.category}]`)
+        .join(", ");
+    }
+
+    function renderAnalysisComparison(analysisA, analysisB) {
+      const container = document.getElementById("analysis-comparison");
+
+      const a = analysisA.result;
+      const b = analysisB.result;
+
+      const riskA = a.risk_report || {};
+      const riskB = b.risk_report || {};
+
+      const diversificationA = a.diversification || {};
+      const diversificationB = b.diversification || {};
+
+      const dataQualityA = a.data_quality || {};
+      const dataQualityB = b.data_quality || {};
+
+      const overlapCountA = (a.overlaps || []).length;
+      const overlapCountB = (b.overlaps || []).length;
+
+      const warningCountA = (riskA.warnings || []).length;
+      const warningCountB = (riskB.warnings || []).length;
+
+      const buyA = listRecommendationNames(a.specific_asset_recommendations || [], "buy");
+      const buyB = listRecommendationNames(b.specific_asset_recommendations || [], "buy");
+
+      const reduceA = listRecommendationNames(a.hold_reduce_recommendations || [], "reduce");
+      const reduceB = listRecommendationNames(b.hold_reduce_recommendations || [], "reduce");
+
+      const riskTrend = getRiskTrendText(
+        riskA.overall_risk_score,
+        riskB.overall_risk_score
+      );
+
+      const diversificationTrend = getDiversificationTrendText(
+        diversificationA.num_groups,
+        diversificationB.num_groups,
+        overlapCountA,
+        overlapCountB
+      );
+
+      const dataQualityTrend = getDataQualityTrendText(
+        dataQualityA.total_penalty,
+        dataQualityB.total_penalty,
+        dataQualityA.total_flags,
+        dataQualityB.total_flags
+      );
+
+      const overlapTrend = getTrendInfo("overlap_count", overlapCountA, overlapCountB);
+      const warningTrend = getTrendInfo("warning_count", warningCountA, warningCountB);
+
+      container.innerHTML = `
+        <div class="result-card">
+          <h3>ניתוחים שנבחרו</h3>
+          <div><strong>ניתוח א:</strong> ${analysisA.created_at_label} — ${analysisA.note}</div>
+          <div><strong>ניתוח ב:</strong> ${analysisB.created_at_label} — ${analysisB.note}</div>
+        </div>
+
+        <div class="${riskTrend.className}">
+          <strong>מגמת סיכון:</strong> ${riskTrend.text}
+        </div>
+
+        <div class="${diversificationTrend.className}">
+          <strong>מגמת פיזור:</strong> ${diversificationTrend.text}
+        </div>
+
+        <div class="${dataQualityTrend.className}">
+          <strong>מגמת איכות נתונים:</strong> ${dataQualityTrend.text}
+        </div>
+
+        <div class="${overlapTrend.className}">
+          <strong>מגמת חפיפות:</strong> ${
+            overlapTrend.label === "שיפור"
+              ? "מספר החפיפות ירד."
+              : overlapTrend.label === "החמרה"
+                ? "מספר החפיפות עלה."
+                : "לא זוהה שינוי מהותי במספר החפיפות."
+          }
+        </div>
+
+        <div class="${warningTrend.className}">
+          <strong>מגמת אזהרות:</strong> ${
+            warningTrend.label === "שיפור"
+              ? "מספר האזהרות ירד."
+              : warningTrend.label === "החמרה"
+                ? "מספר האזהרות עלה."
+                : "לא זוהה שינוי מהותי במספר האזהרות."
+          }
+        </div>
+
+        <div class="result-card">
+          <h3>השוואת סיכון</h3>
+          <div><strong>ציון סיכון:</strong> ${riskA.overall_risk_score ?? "—"} → ${riskB.overall_risk_score ?? "—"} (${getChangeText(riskB.overall_risk_score, riskA.overall_risk_score)})</div>
+          <div><strong>רמת סיכון:</strong> ${riskA.overall_risk_label ?? "—"} → ${riskB.overall_risk_label ?? "—"}</div>
+          <div><strong>חשיפה מנייתית:</strong> ${formatPercent(riskA.metrics?.equity_exposure)} → ${formatPercent(riskB.metrics?.equity_exposure)} (${getChangeText(riskB.metrics?.equity_exposure, riskA.metrics?.equity_exposure, true)})</div>
+          <div><strong>יחס מזומן:</strong> ${formatPercent(riskA.metrics?.cash_ratio)} → ${formatPercent(riskB.metrics?.cash_ratio)} (${getChangeText(riskB.metrics?.cash_ratio, riskA.metrics?.cash_ratio, true)})</div>
+          <div><strong>כמות אזהרות:</strong> ${warningCountA} → ${warningCountB}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>השוואת פיזור</h3>
+          <div><strong>מספר נכסים:</strong> ${diversificationA.num_assets ?? "—"} → ${diversificationB.num_assets ?? "—"}</div>
+          <div><strong>מספר קבוצות חשיפה:</strong> ${diversificationA.num_groups ?? "—"} → ${diversificationB.num_groups ?? "—"}</div>
+          <div><strong>מספר חפיפות:</strong> ${overlapCountA} → ${overlapCountB}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>השוואת איכות נתונים</h3>
+          <div><strong>רמת איכות:</strong> ${dataQualityA.quality_label ?? "—"} → ${dataQualityB.quality_label ?? "—"}</div>
+          <div><strong>מספר דגלים:</strong> ${dataQualityA.total_flags ?? "—"} → ${dataQualityB.total_flags ?? "—"}</div>
+          <div><strong>קנס כולל:</strong> ${dataQualityA.total_penalty ?? "—"} → ${dataQualityB.total_penalty ?? "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>השוואת המלצות</h3>
+          <div><strong>נכסי Buy:</strong> ${buyA || "—"} → ${buyB || "—"}</div>
+          <div><strong>נכסי Reduce:</strong> ${reduceA || "—"} → ${reduceB || "—"}</div>
+        </div>
+      `;
+    }
+
+    async function runScenarioAnalysis() {
+      const messageBox = document.getElementById("message-box");
+      const scenarioResult = document.getElementById("scenario-result");
+
+      try {
+        const payload = {
+          assets: collectAssets(),
+          investor: collectInvestorProfile()
+        };
+
+        const scenarioType = document.getElementById("scenario-type").value;
+        const scenarioAssetName = document.getElementById("scenario-asset-name").value;
+        const scenarioAmount = Number(document.getElementById("scenario-amount").value);
+        const scenarioRiskLevel = document.getElementById("scenario-risk-level").value;
+
+        let scenario = { type: scenarioType };
+
+        if (scenarioType === "add_cash_to_asset") {
+          scenario.asset_name = scenarioAssetName;
+          scenario.amount = scenarioAmount;
+        } else if (scenarioType === "reduce_asset") {
+          scenario.asset_name = scenarioAssetName;
+          scenario.percent = scenarioAmount;
+        } else if (scenarioType === "change_risk_level") {
+          scenario.risk_level = scenarioRiskLevel;
+        }
+
+        const response = await fetch(`${API_BASE_URL}/scenario`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            portfolio: payload,
+            scenario: scenario
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          throw new Error(data.error || "שגיאה בהרצת התרחיש.");
+        }
+
+        renderScenarioResult(data);
+        messageBox.innerHTML = `<div class="success-box">התרחיש הורץ בהצלחה.</div>`;
+      } catch (error) {
+        scenarioResult.innerHTML = "";
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    async function runSmartScenario() {
+      const messageBox = document.getElementById("message-box");
+      const resultContainer = document.getElementById("smart-scenario-result");
+
+      try {
+        const payload = {
+          assets: collectAssets(),
+          investor: collectInvestorProfile()
+        };
+
+        const goal = document.getElementById("smart-scenario-goal").value;
+
+        const response = await fetch(`${API_BASE_URL}/smart-scenario`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            portfolio: payload,
+            goal: goal
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          throw new Error(data.error || "שגיאה בהרצת תרחיש חכם.");
+        }
+
+        renderSmartScenarioResult(data);
+        messageBox.innerHTML = `<div class="success-box">התרחיש החכם הורץ בהצלחה.</div>`;
+      } catch (error) {
+        resultContainer.innerHTML = "";
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    function renderSmartScenarioResult(data) {
+      const container = document.getElementById("smart-scenario-result");
+
+      const scenario = data.scenario || {};
+      const before = data.before || {};
+      const after = data.after || {};
+
+      const beforeRisk = before.risk_report || {};
+      const afterRisk = after.risk_report || {};
+
+      const beforeDiv = before.diversification || {};
+      const afterDiv = after.diversification || {};
+
+      const beforeOverlapCount = (before.overlaps || []).length;
+      const afterOverlapCount = (after.overlaps || []).length;
+
+      container.innerHTML = `
+        <div class="result-card">
+          <h3>התרחיש שהמערכת מציעה</h3>
+          <div><strong>סוג פעולה:</strong> ${scenario.type || "—"}</div>
+          <div><strong>נכס יעד:</strong> ${scenario.asset_name || "—"}</div>
+          <div><strong>סכום:</strong> ${scenario.amount ?? "—"}</div>
+          <div><strong>אחוז:</strong> ${scenario.percent ?? "—"}</div>
+          <div><strong>רמת סיכון חדשה:</strong> ${scenario.risk_level ?? "—"}</div>
+          <div><strong>למה:</strong> ${scenario.reason || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>השפעה צפויה על הסיכון</h3>
+          <div><strong>ציון סיכון:</strong> ${beforeRisk.overall_risk_score ?? "—"} → ${afterRisk.overall_risk_score ?? "—"}</div>
+          <div><strong>רמת סיכון:</strong> ${beforeRisk.overall_risk_label ?? "—"} → ${afterRisk.overall_risk_label ?? "—"}</div>
+          <div><strong>חשיפה מנייתית:</strong> ${formatPercent(beforeRisk.metrics?.equity_exposure)} → ${formatPercent(afterRisk.metrics?.equity_exposure)}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>השפעה צפויה על הפיזור</h3>
+          <div><strong>קבוצות חשיפה:</strong> ${beforeDiv.num_groups ?? "—"} → ${afterDiv.num_groups ?? "—"}</div>
+          <div><strong>מספר חפיפות:</strong> ${beforeOverlapCount} → ${afterOverlapCount}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>סיכום אחרי התרחיש</h3>
+          <div>${after.explanation?.summary || "אין סיכום זמין."}</div>
+        </div>
+      `;
+    }
+
+    function renderScenarioResult(data) {
+      const container = document.getElementById("scenario-result");
+
+      const before = data.before || {};
+      const after = data.after || {};
+
+      const beforeRisk = before.risk_report || {};
+      const afterRisk = after.risk_report || {};
+
+      const beforeDiv = before.diversification || {};
+      const afterDiv = after.diversification || {};
+
+      const beforeOverlapCount = (before.overlaps || []).length;
+      const afterOverlapCount = (after.overlaps || []).length;
+
+      container.innerHTML = `
+        <div class="result-card">
+          <h3>תוצאה לפני ואחרי תרחיש</h3>
+          <div><strong>סוג תרחיש:</strong> ${data.scenario?.type || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>סיכון</h3>
+          <div><strong>ציון סיכון:</strong> ${beforeRisk.overall_risk_score ?? "—"} → ${afterRisk.overall_risk_score ?? "—"}</div>
+          <div><strong>רמת סיכון:</strong> ${beforeRisk.overall_risk_label ?? "—"} → ${afterRisk.overall_risk_label ?? "—"}</div>
+          <div><strong>חשיפה מנייתית:</strong> ${formatPercent(beforeRisk.metrics?.equity_exposure)} → ${formatPercent(afterRisk.metrics?.equity_exposure)}</div>
+          <div><strong>יחס מזומן:</strong> ${formatPercent(beforeRisk.metrics?.cash_ratio)} → ${formatPercent(afterRisk.metrics?.cash_ratio)}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>פיזור</h3>
+          <div><strong>מספר קבוצות חשיפה:</strong> ${beforeDiv.num_groups ?? "—"} → ${afterDiv.num_groups ?? "—"}</div>
+          <div><strong>מספר חפיפות:</strong> ${beforeOverlapCount} → ${afterOverlapCount}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>המלצות אחרי התרחיש</h3>
+          <div><strong>Buy:</strong> ${listRecommendationNames(after.specific_asset_recommendations || [], "buy") || "—"}</div>
+          <div><strong>Reduce:</strong> ${listRecommendationNames(after.hold_reduce_recommendations || [], "reduce") || "—"}</div>
+        </div>
+
+        <div class="result-card">
+          <h3>סיכום תרחיש</h3>
+          <div>${after.explanation?.summary || "אין סיכום זמין."}</div>
+        </div>
+      `;
+    }
+
+    async function runTopSmartScenarios() {
+      const messageBox = document.getElementById("message-box");
+      const resultContainer = document.getElementById("top-scenarios-result");
+
+      try {
+        const payload = {
+          assets: collectAssets(),
+          investor: collectInvestorProfile()
+        };
+
+        const goal = document.getElementById("best-scenario-goal").value;
+
+        const response = await fetch(`${API_BASE_URL}/smart-scenarios`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            portfolio: payload,
+            goal: goal
+          })
+        });
+
+        const data = await response.json();
+
+        if (!response.ok || data.error) {
+          throw new Error(data.error || "שגיאה בהרצת תרחישים חכמים.");
+        }
+
+        renderTopSmartScenarios(data);
+        messageBox.innerHTML = `<div class="success-box">נמצאו התרחישים המובילים.</div>`;
+      } catch (error) {
+        resultContainer.innerHTML = "";
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    function renderTopSmartScenarios(data) {
+      const container = document.getElementById("top-scenarios-result");
+      const scenarios = data.top_scenarios || [];
+
+      if (!scenarios.length) {
+        container.innerHTML = `<div class="muted">לא נמצאו תרחישים מתאימים.</div>`;
+        return;
+      }
+
+      container.innerHTML = scenarios.map((item, index) => {
+        const scenario = item.scenario || {};
+        const before = item.before || {};
+        const after = item.after || {};
+
+        const beforeRisk = before.risk_report || {};
+        const afterRisk = after.risk_report || {};
+
+        const beforeDiv = before.diversification || {};
+        const afterDiv = after.diversification || {};
+
+        const beforeOverlapCount = (before.overlaps || []).length;
+        const afterOverlapCount = (after.overlaps || []).length;
+
+        return `
+          <div class="result-card">
+            <h3>תרחיש #${index + 1}</h3>
+            <div><strong>ציון תרחיש:</strong> ${item.score}</div>
+            <div><strong>סוג פעולה:</strong> ${scenario.type || "—"}</div>
+            <div><strong>נכס יעד:</strong> ${scenario.asset_name || "—"}</div>
+            <div><strong>סכום:</strong> ${scenario.amount ?? "—"}</div>
+            <div><strong>אחוז:</strong> ${scenario.percent ?? "—"}</div>
+            <div><strong>רמת סיכון חדשה:</strong> ${scenario.risk_level ?? "—"}</div>
+            <div><strong>למה נבחר:</strong> ${scenario.reason || "—"}</div>
+
+            <hr style="margin: 12px 0;" />
+
+            <div><strong>ציון סיכון:</strong> ${beforeRisk.overall_risk_score ?? "—"} → ${afterRisk.overall_risk_score ?? "—"}</div>
+            <div><strong>רמת סיכון:</strong> ${beforeRisk.overall_risk_label ?? "—"} → ${afterRisk.overall_risk_label ?? "—"}</div>
+            <div><strong>קבוצות חשיפה:</strong> ${beforeDiv.num_groups ?? "—"} → ${afterDiv.num_groups ?? "—"}</div>
+            <div><strong>חפיפות:</strong> ${beforeOverlapCount} → ${afterOverlapCount}</div>
+
+            <div style="margin-top: 10px;"><strong>סיכום:</strong> ${after.explanation?.summary || "אין סיכום זמין."}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+function renderAiExplainer(data) {
+  const container = document.getElementById("ai-explainer");
+  container.innerHTML = "";
+
+  if (!data) {
+    container.innerHTML = `<div class="muted">אין הסבר AI זמין.</div>`;
+    return;
+  }
+
+  if (data.error) {
+    container.innerHTML = `<div class="warning">שגיאה בשכבת ה-AI: ${data.error}</div>`;
+    return;
+  }
+
+  container.innerHTML = `
+    <div class="result-card">
+      <h3>סיכום קצר</h3>
+      <div>${data.short_summary || "—"}</div>
+    </div>
+
+    <div class="result-card">
+      <h3>הסבר ידידותי ללקוח</h3>
+      <div>${data.client_friendly_summary || "—"}</div>
+    </div>
+
+    <div class="result-card">
+      <h3>סיכונים מרכזיים</h3>
+      <ul>${(data.top_risks || []).map(x => `<li>${x}</li>`).join("")}</ul>
+    </div>
+
+    <div class="result-card">
+      <h3>פעולות עיקריות</h3>
+      <ul>${(data.top_actions || []).map(x => `<li>${x}</li>`).join("")}</ul>
+    </div>
+
+    <div class="result-card">
+      <h3>הצהרת זהירות</h3>
+      <div>${data.disclaimer || "—"}</div>
+    </div>
+  `;
+}   
+
+function getTrackBasedNewIdeas(track) {
+  const ideasByTrack = {
+    "כללי": [
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "ETF / מניות חו\"ל",
+        reason: "מוסיף פיזור גלובלי רחב ומתאים למסלול כללי."
+      },
+      {
+        name: "MTF מחקה תל גוב-שקלי 2-5",
+        security_number: "5122973",
+        category: "אג\"ח מדינה",
+        reason: "יכול לאזן תנודתיות ולחזק את הרכיב הסולידי בתיק."
+      }
+    ],
+    "ממוקד חו\"ל": [
+      {
+        name: "MTF מחקה S&P 500",
+        security_number: "5122627",
+        category: "מניות חו\"ל",
+        reason: "מתאים למסלול עם דגש חו\"ל וחשיפה לשוק אמריקאי רחב."
+      },
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "מניות חו\"ל",
+        reason: "משפר פיזור מעבר לארה\"ב בלבד."
+      }
+    ],
+    "קרן כספית": [
+      {
+        name: "מגדל כספית",
+        security_number: "5134309",
+        category: "קרן כספית",
+        reason: "מתאים למסלול סולידי עם דגש על נזילות."
+      },
+      {
+        name: "MTF מחקה תל גוב-שקלי 2-5",
+        security_number: "5122973",
+        category: "אג\"ח מדינה",
+        reason: "יכול לשמש רכיב סולידי נוסף לצד הקרן הכספית."
+      }
+    ],
+    "ממוקד AI וטכנולוגיה": [
+      {
+        name: "MTF מחקה S&P 500",
+        security_number: "5122627",
+        category: "מניות חו\"ל",
+        reason: "נותן חשיפה לחברות טכנולוגיה גדולות כחלק ממדד רחב."
+      },
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "מניות חו\"ל",
+        reason: "מגדיל פיזור גלובלי גם למסלול עם נטייה לצמיחה."
+      }
+    ],
+    "ממוקד נדל\"ן ותשתיות": [
+      {
+        name: "MTF מחקה תל גוב-שקלי 2-5",
+        security_number: "5122973",
+        category: "אג\"ח מדינה",
+        reason: "עוזר לאזן תיק עם רכיבים ריאליים או תנודתיים יותר."
+      },
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "מניות חו\"ל",
+        reason: "מוסיף פיזור רחב מסביב לחשיפה ענפית."
+      }
+    ],
+    "משולב קריפטו": [
+      {
+        name: "מגדל כספית",
+        security_number: "5134309",
+        category: "קרן כספית",
+        reason: "מאזן את הסיכון במסלול עם רכיבים תנודתיים יותר."
+      },
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "מניות חו\"ל",
+        reason: "יוצר רכיב צמיחה מפוזר יותר ליד רכיבים תנודתיים."
+      }
+    ],
+    "משולב זהב": [
+      {
+        name: "MTF מחקה MSCI World",
+        security_number: "5122569",
+        category: "מניות חו\"ל",
+        reason: "משלים את רכיב ההגנה עם רכיב צמיחה גלובלי."
+      },
+      {
+        name: "MTF מחקה תל גוב-שקלי 2-5",
+        security_number: "5122973",
+        category: "אג\"ח מדינה",
+        reason: "מוסיף איזון סולידי לתיק."
+      }
+    ]
+  };
+
+  return ideasByTrack[track] || [
+    {
+      name: "MTF מחקה MSCI World",
+      security_number: "5122569",
+      category: "מניות חו\"ל",
+      reason: "ברירת מחדל טובה להרחבת פיזור בתיק."
+    }
+  ];
+}
+
+async function buildFreeCashSuggestions(amount) {
+  if (!lastAnalysisResult || !lastAnalysisPayload) {
+    return [];
+  }
+
+  const activeProfile = getActiveOnboardingProfile();
+  const selectedTrack = activeProfile?.selected_track || "כללי";
+
+  const assetCards = Array.from(document.querySelectorAll("#assets-container .asset-card"));
+
+  const currentAssets = assetCards.map(card => ({
+    asset_name: card.querySelector(".asset_name")?.value || "",
+    security_number: card.querySelector(".security_number")?.value || "",
+    current_price: Number(card.querySelector(".current_price")?.value) || 0,
+    currency: card.querySelector(".currency")?.value || "ILS",
+    asset_type: card.querySelector(".asset_type")?.value || "other"
+  }));
+
+  const existingSecurityNumbers = new Set(
+    currentAssets
+      .map(asset => (asset.security_number || "").trim())
+      .filter(Boolean)
+  );
+
+  const buyRecommendations = (lastAnalysisResult.specific_asset_recommendations || [])
+    .filter(item => item.action === "buy");
+
+  const existingAssetSuggestions = buyRecommendations.slice(0, 3).map((item, index) => {
+    const allocation = index === 0 ? 0.5 : index === 1 ? 0.3 : 0.2;
+    const recommendedAmount = Math.round(amount * allocation);
+
+    const matchedAsset = currentAssets.find(asset =>
+      asset.asset_name && item.asset_name &&
+      asset.asset_name.trim() === item.asset_name.trim()
+    );
+
+    let currentPrice = matchedAsset?.current_price || 0;
+    let securityNumber = matchedAsset?.security_number || "";
+    let estimatedUnits = 0;
+    let estimatedPurchaseValue = 0;
+
+    if (currentPrice > 0) {
+      const normalizedPrice =
+        (matchedAsset?.currency || "ILS").toUpperCase() === "ILS"
+          ? currentPrice / 100
+          : currentPrice;
+
+      if (normalizedPrice > 0) {
+        estimatedUnits = Math.floor(recommendedAmount / normalizedPrice);
+        estimatedPurchaseValue = Number((estimatedUnits * normalizedPrice).toFixed(2));
+      }
+    }
+
+    return {
+      type: "existing",
+      title: `חיזוק נכס קיים: ${item.asset_name || item.category || "נכס מומלץ"}`,
+      asset_name: item.asset_name || "",
+      security_number: securityNumber,
+      amount: recommendedAmount,
+      current_price: currentPrice,
+      estimated_units: estimatedUnits,
+      estimated_purchase_value: estimatedPurchaseValue,
+      reason: item.reason || item.explanation || "הנכס קיבל עדיפות קנייה בניתוח האחרון."
+    };
+  });
+
+  const rawNewIdeas = getTrackBasedNewIdeas(selectedTrack)
+    .filter(idea => !existingSecurityNumbers.has((idea.security_number || "").trim()))
+    .slice(0, 2);
+
+  const newIdeaSuggestions = [];
+
+  for (let i = 0; i < rawNewIdeas.length; i++) {
+    const idea = rawNewIdeas[i];
+    const allocation = existingAssetSuggestions.length
+      ? (i === 0 ? 0.4 : 0.2)
+      : (i === 0 ? 0.6 : 0.4);
+
+    const recommendedAmount = Math.round(amount * allocation);
+
+    let liveData = null;
+    try {
+      liveData = await fetchAssetDataBySecurityNumber(idea.security_number);
+    } catch (error) {
+      console.error("שגיאה בשליפת נתון live לרעיון חדש:", idea.security_number, error);
+    }
+
+    const currentPriceRaw = Number(liveData?.current_price) || 0;
+    const normalizedPrice = currentPriceRaw > 0 ? currentPriceRaw / 100 : 0;
+
+    const estimatedUnits = normalizedPrice > 0
+      ? Math.floor(recommendedAmount / normalizedPrice)
+      : 0;
+
+    const estimatedPurchaseValue = normalizedPrice > 0
+      ? Number((estimatedUnits * normalizedPrice).toFixed(2))
+      : 0;
+
+    newIdeaSuggestions.push({
+      type: "new",
+      title: `רעיון לנכס חדש: ${liveData?.asset_name || idea.name}`,
+      asset_name: liveData?.asset_name || idea.name,
+      security_number: idea.security_number,
+      amount: recommendedAmount,
+      current_price: currentPriceRaw,
+      estimated_units: estimatedUnits,
+      estimated_purchase_value: estimatedPurchaseValue,
+      reason: idea.reason,
+      category: idea.category || "כללי"
+    });
+  }
+
+  let suggestions = [...existingAssetSuggestions, ...newIdeaSuggestions];
+
+  if (!suggestions.length) {
+    suggestions = [];
+  }
+
+  let totalAllocated = suggestions.reduce((sum, item) => sum + item.amount, 0);
+
+  if (totalAllocated > amount && suggestions.length) {
+    const diff = totalAllocated - amount;
+    suggestions[suggestions.length - 1].amount = Math.max(0, suggestions[suggestions.length - 1].amount - diff);
+  }
+
+  return suggestions;
+}
+
+function renderFreeCashRecommendations(amount, suggestions) {
+  const container = document.getElementById("free-cash-result");
+  if (!container) return;
+
+  if (!suggestions.length) {
+    container.innerHTML = `<div class="warning">לא נמצאו כרגע המלצות מתאימות לשימוש בכסף החופשי.</div>`;
+    return;
+  }
+
+  const totalAllocated = suggestions.reduce((sum, item) => sum + item.amount, 0);
+  const remaining = amount - totalAllocated;
+
+  container.innerHTML = `
+    <div class="result-card">
+      <h3>סיכום שימוש בסכום</h3>
+      <div><strong>סכום שהוזן:</strong> ${formatCurrency(amount)}</div>
+      <div><strong>סכום שחולק בהמלצות:</strong> ${formatCurrency(totalAllocated)}</div>
+      <div><strong>יתרה לא מחולקת:</strong> ${formatCurrency(remaining)}</div>
+    </div>
+
+    ${suggestions.map(item => {
+      const hasLivePrice = item.current_price > 0 && item.estimated_units > 0;
+      const normalizedDisplayPrice = item.current_price > 0
+        ? formatCurrency(item.current_price >= 50 ? item.current_price / 100 : item.current_price)
+        : "לא זמין";
+
+      return `
+        <div class="result-card ${item.type === "new" ? "recommendation-buy" : "recommendation-hold"}">
+          <h3>${item.title}</h3>
+
+          <div><strong>סכום מוצע להשקעה:</strong> ${formatCurrency(item.amount)}</div>
+
+          ${item.security_number ? `
+            <div><strong>מספר נייר:</strong> ${item.security_number}</div>
+          ` : ``}
+
+          ${item.current_price > 0 ? `
+            <div><strong>מחיר נוכחי:</strong> ${normalizedDisplayPrice}</div>
+          ` : `
+            <div><strong>מחיר נוכחי:</strong> לא זמין כרגע</div>
+          `}
+
+          ${item.category ? `
+           <div><strong>קטגוריה:</strong> ${item.category}</div>
+          ` : ``}
+
+          ${hasLivePrice ? `
+            <div><strong>כמות משוערת לרכישה:</strong> ${item.estimated_units.toLocaleString("he-IL")}</div>
+            <div><strong>שווי משוער של הרכישה:</strong> ${formatCurrency(item.estimated_purchase_value)}</div>
+          ` : `
+            <div><strong>כמות משוערת לרכישה:</strong> דורש בחירת נייר בפועל</div>
+          `}
+
+          <div><strong>למה זה מתאים:</strong> ${item.reason}</div>
+
+          ${item.type === "new" ? `
+            <div class="field-help" style="margin-top:8px;">
+              זהו רעיון לנכס חדש שמתאים לפרופיל ולניתוח, אך עדיין יש לבחור נייר ספציפי לביצוע.
+            </div>
+          ` : ``}
+        </div>
+      `;
+    }).join("")}
+  `;
+}
+
+async function generateFreeCashRecommendations() {
+  const messageBox = document.getElementById("message-box");
+  const amountInput = document.getElementById("free-cash-amount");
+
+  if (!lastAnalysisResult || !lastAnalysisPayload) {
+    messageBox.innerHTML = `<div class="error-box">יש לבצע קודם ניתוח תיק ורק אחר כך לבקש המלצות לשימוש בכסף חופשי.</div>`;
+    return;
+  }
+
+  const amount = Number(amountInput?.value) || 0;
+
+  if (amount <= 0) {
+    messageBox.innerHTML = `<div class="error-box">יש להזין סכום גדול מ-0.</div>`;
+    return;
+  }
+
+  try {
+    messageBox.innerHTML = `<div class="success-box">בונה המלצות על בסיס ניתוח התיק ונתוני שוק חיים...</div>`;
+
+    const suggestions = await buildFreeCashSuggestions(amount);
+    renderFreeCashRecommendations(amount, suggestions);
+
+    messageBox.innerHTML = `<div class="success-box">נבנו המלצות לשימוש בסכום הפנוי.</div>`;
+  } catch (error) {
+    console.error("שגיאה בהמלצות כסף חופשי:", error);
+    messageBox.innerHTML = `<div class="error-box">אירעה שגיאה בבניית ההמלצות.</div>`;
+  }
+}
+
+function buildAiPromptText() {
+  const activeProfile = getActiveOnboardingProfile();
+  const assetCards = Array.from(document.querySelectorAll("#assets-container .asset-card"));
+
+  const profileName = activeProfile?.portfolio_name || "ללא שם";
+  const riskProfile = activeProfile?.risk_profile || "לא ידוע";
+  const selectedTrack = activeProfile?.selected_track || "לא ידוע";
+  const recommendedEquityExposure = activeProfile?.recommended_equity_exposure || "לא ידוע";
+
+  const assetsText = assetCards.map((card, index) => {
+    const assetName = card.querySelector(".asset_name")?.value || "";
+    const assetType = card.querySelector(".asset_type")?.value || "";
+    const securityNumber = card.querySelector(".security_number")?.value || "";
+    const exchange = card.querySelector(".exchange")?.value || "";
+    const currency = card.querySelector(".currency")?.value || "";
+    const exposureProfile = card.querySelector(".exposure_profile")?.value || "";
+    const quantity = card.querySelector(".quantity")?.value || "";
+    const currentPrice = card.querySelector(".current_price")?.value || "";
+    const avgBuyPrice = card.querySelector(".avg_buy_price")?.value || "";
+    const currentValue = card.querySelector(".current_value")?.value || "";
+    const costBasis = card.querySelector(".cost_basis")?.value || "";
+    const classification = card.querySelector(".classification")?.value || "";
+    const equityExposure = card.querySelector(".equity_exposure")?.value || "";
+    const fxExposure = card.querySelector(".fx_exposure")?.value || "";
+    const stdDev12m = card.querySelector(".std_dev_12m")?.value || "";
+    const sharpeRatio = card.querySelector(".sharpe_ratio")?.value || "";
+    const return12m = card.querySelector(".return_12m")?.value || "";
+    const return3y = card.querySelector(".return_3y")?.value || "";
+    const managementFee = card.querySelector(".management_fee")?.value || "";
+    const dailyChangePercent = card.querySelector(".daily_change_percent")?.value || "";
+    const dailyChangeValue = card.querySelector(".daily_change_value")?.value || "";
+
+    return `
+נכס ${index + 1}:
+- שם נכס: ${assetName}
+- סוג נכס: ${assetType}
+- מספר נייר: ${securityNumber}
+- בורסה: ${exchange}
+- מטבע: ${currency}
+- פרופיל חשיפה: ${exposureProfile}
+- כמות: ${quantity}
+- מחיר נוכחי: ${currentPrice}
+- מחיר קנייה ממוצע: ${avgBuyPrice}
+- שווי נוכחי: ${currentValue}
+- בסיס עלות: ${costBasis}
+- סיווג: ${classification}
+- חשיפה מנייתית: ${equityExposure}
+- חשיפה למט"ח: ${fxExposure}
+- סטיית תקן 12 חודשים: ${stdDev12m}
+- מדד שארפ: ${sharpeRatio}
+- תשואה 12 חודשים: ${return12m}
+- תשואה 3 שנים: ${return3y}
+- דמי ניהול: ${managementFee}
+- שינוי יומי באחוזים: ${dailyChangePercent}
+- שינוי יומי בשקלים: ${dailyChangeValue}
+`.trim();
+  }).join("\n\n");
+
+  const analysisSummary = lastAnalysisResult ? `
+מידע מתוך הניתוח האחרון:
+- ציון סיכון כולל: ${lastAnalysisResult?.risk_report?.overall_risk_score ?? "לא זמין"}
+- רמת סיכון: ${lastAnalysisResult?.risk_report?.overall_risk_label ?? "לא זמינה"}
+- מספר אזהרות: ${(lastAnalysisResult?.risk_report?.warnings || []).length}
+- מספר חפיפות אפשריות: ${(lastAnalysisResult?.overlaps || []).length}
+- מספר קבוצות פיזור אמיתי: ${lastAnalysisResult?.diversification?.num_groups ?? "לא זמין"}
+- איכות נתונים: ${lastAnalysisResult?.data_quality?.quality_label ?? "לא זמין"}
+- סיכום הסבר: ${lastAnalysisResult?.explanation?.summary || "לא זמין"}
+` : `
+אין כרגע ניתוח תיק זמין. אם צריך, הסתמך על הנתונים הגולמיים של התיק.
+`.trim();
+
+  return `
+אני מציג לך תיק השקעות של משתמש פרטי.
+
+המטרה שלך:
+1. קודם כל להציג בצורה מסודרת את המידע שקיבלת על התיק.
+2. אחר כך לשאול את המשתמש איך הוא רוצה עזרה.
+
+פרטי פרופיל התיק:
+- שם התיק: ${profileName}
+- פרופיל סיכון: ${riskProfile}
+- מסלול נבחר: ${selectedTrack}
+- חשיפה מנייתית מומלצת: ${recommendedEquityExposure}
+
+פירוט הנכסים בתיק:
+${assetsText || "אין כרגע נכסים בתיק."}
+
+${analysisSummary}
+
+הנחיות:
+- השתמש במידע על מספרי נייר, שמות נכסים, סוג נכס, מטבע, בורסה, פרופיל חשיפה, תשואות, דמי ניהול וסטיות תקן כדי להסביר את מצב התיק.
+- אם יש צורך, אפשר להשתמש במידע הזה כדי לחפש מידע עדכני על הנכסים באתרים פיננסיים.
+- קודם כל תציג את המידע שקיבלת בצורה ברורה ומסודרת.
+- לאחר מכן שאל את המשתמש כיצד הוא רוצה עזרה.
+
+האפשרויות שאתה צריך להציע למשתמש הן:
+1. הוספת נכס חדש
+2. בדיקת התאמת התיק לפרופיל ובדיקה האם יש חריגות מהפרופיל
+
+אם יש חריגות, פרט אותן בצורה פשוטה וברורה.
+`.trim();
+}
+
+function generateAiPrompt() {
+  const prompt = buildAiPromptText();
+  const output = document.getElementById("ai-prompt-output");
+  const section = document.getElementById("ai-prompt-section");
+  const messageBox = document.getElementById("message-box");
+
+  if (output) {
+    output.value = prompt;
+  }
+
+  if (section) {
+    section.classList.remove("hidden");
+  }
+
+  if (messageBox) {
+    messageBox.innerHTML = `<div class="success-box">נוצר פרומפט מוכן למנוע AI.</div>`;
+  }
+}
+
+async function copyAiPromptToClipboard() {
+  const output = document.getElementById("ai-prompt-output");
+  const messageBox = document.getElementById("message-box");
+
+  if (!output || !output.value.trim()) {
+    if (messageBox) {
+      messageBox.innerHTML = `<div class="error-box">אין עדיין פרומפט להעתקה.</div>`;
+    }
+    return;
+  }
+
+  try {
+    await navigator.clipboard.writeText(output.value);
+    if (messageBox) {
+      messageBox.innerHTML = `<div class="success-box">הפרומפט הועתק ללוח.</div>`;
+    }
+  } catch (error) {
+    if (messageBox) {
+      messageBox.innerHTML = `<div class="error-box">לא ניתן היה להעתיק את הפרומפט.</div>`;
+    }
+  }
+}
+
+function getAuthToken() {
+  return localStorage.getItem("portfolio_auth_token") || "";
+}
+
+function getAuthenticatedUser() {
+  try {
+    return JSON.parse(localStorage.getItem("portfolio_auth_user") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
+function setAuthenticatedUser(token, user) {
+  localStorage.setItem("portfolio_auth_token", token);
+  localStorage.setItem("portfolio_auth_user", JSON.stringify(user));
+}
+
+function clearAuthenticatedUser() {
+  localStorage.removeItem("portfolio_auth_token");
+  localStorage.removeItem("portfolio_auth_user");
+}
+
+function showAppShell() {
+  document.getElementById("login-screen")?.classList.add("hidden");
+  document.getElementById("app-shell")?.classList.remove("hidden");
+}
+
+function showLoginScreen() {
+  document.getElementById("login-screen")?.classList.remove("hidden");
+  document.getElementById("app-shell")?.classList.add("hidden");
+}
+
+async function loginToApp() {
+  const email = document.getElementById("login-email")?.value?.trim() || "";
+  const password = document.getElementById("login-password")?.value || "";
+  const loginMessage = document.getElementById("login-message");
+
+  if (!email || !password) {
+    if (loginMessage) {
+      loginMessage.innerHTML = `<div class="error-box">יש להזין אימייל וסיסמה.</div>`;
+    }
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/login`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok) {
+      throw new Error(data.detail || "התחברות נכשלה");
+    }
+
+    setAuthenticatedUser(data.token, data.user);
+
+    if (loginMessage) {
+      loginMessage.innerHTML = `<div class="success-box">התחברת בהצלחה.</div>`;
+    }
+
+    showAppShell();
+    renderActiveUserBanner();
+  } catch (error) {
+    if (loginMessage) {
+      loginMessage.innerHTML = `<div class="error-box">${error.message}</div>`;
+    }
+  }
+}
+
+async function validateExistingLogin() {
+  const token = getAuthToken();
+  if (!token) {
+    showLoginScreen();
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.authenticated) {
+      clearAuthenticatedUser();
+      showLoginScreen();
+      return false;
+    }
+
+    showAppShell();
+    renderActiveUserBanner();
+    return true;
+  } catch (error) {
+    clearAuthenticatedUser();
+    showLoginScreen();
+    return false;
+  }
+}
+
+function logoutFromApp() {
+  clearAuthenticatedUser();
+  showLoginScreen();
+  const loginMessage = document.getElementById("login-message");
+  if (loginMessage) {
+    loginMessage.innerHTML = `<div class="success-box">התנתקת.</div>`;
+  }
+}
+
+function renderActiveUserBanner() {
+  const user = getAuthenticatedUser();
+  const profileBanner = document.getElementById("active-profile-banner");
+
+  if (!profileBanner || !user) return;
+
+  let existingUserBox = document.getElementById("active-user-banner-box");
+
+  if (!existingUserBox) {
+    existingUserBox = document.createElement("div");
+    existingUserBox.id = "active-user-banner-box";
+    existingUserBox.innerHTML = `
+      <strong>משתמש מחובר:</strong>
+      <span id="active-user-name">-</span>
+      <button type="button" class="secondary" style="margin-right:12px;" onclick="logoutFromApp()">התנתק</button>
+    `;
+    profileBanner.prepend(existingUserBox);
+  }
+
+  const nameEl = document.getElementById("active-user-name");
+  if (nameEl) {
+    nameEl.textContent = user.name || user.email || "-";
+  }
+}
+
+function getActiveOnboardingProfile() {
+  try {
+    return JSON.parse(localStorage.getItem("portfolio_onboarding_profile") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
+function buildInvestorProfileFromOnboarding() {
+  const activeProfile = getActiveOnboardingProfile();
+
+  if (!activeProfile) {
+    return {
+      risk_level: "medium",
+      investment_horizon: "medium_term",
+      goal: "general"
+    };
+  }
+
+  const riskLevelMap = {
+    "סולידי": "low",
+    "מאוזן": "medium",
+    "אגרסיבי": "high"
+  };
+
+  let investmentHorizon = "medium_term";
+  const firstAnswer = activeProfile.questions?.[0]?.answer || "";
+
+  if (firstAnswer.includes("שנה")) {
+    investmentHorizon = "short_term";
+  } else if (firstAnswer.includes("2 ל-5")) {
+    investmentHorizon = "medium_term";
+  } else if (firstAnswer.includes("מעל 5")) {
+    investmentHorizon = "long_term";
+  }
+
+  return {
+    risk_level: riskLevelMap[activeProfile.risk_profile] || "medium",
+    investment_horizon: investmentHorizon,
+    goal: activeProfile.selected_track || "general"
+  };
+}
+
+    function saveCurrentAnalysisToHistory() {
+      const messageBox = document.getElementById("message-box");
+      const noteInput = document.getElementById("analysis-history-note");
+      const note = noteInput.value.trim() || "ניתוח ללא תיאור";
+
+      if (!lastAnalysisResult || !lastAnalysisPayload) {
+        messageBox.innerHTML = `<div class="error-box">אין ניתוח נוכחי לשמירה. יש להריץ ניתוח קודם.</div>`;
+        return;
+      }
+
+      const now = new Date();
+      const item = {
+        id: String(now.getTime()),
+        created_at: now.toISOString(),
+        created_at_label: now.toLocaleString("he-IL"),
+        note: note,
+        payload: lastAnalysisPayload,
+        result: lastAnalysisResult,
+      };
+
+      const items = getAnalysisHistory();
+      items.unshift(item);
+
+      saveAnalysisHistory(items);
+      refreshAnalysisHistorySelect();
+
+      document.getElementById("analysis-history-select").value = item.id;
+      messageBox.innerHTML = `<div class="success-box">הניתוח נשמר בהיסטוריה.</div>`;
+    }
+
+    function loadSelectedAnalysisHistory() {
+      const messageBox = document.getElementById("message-box");
+      const selectedId = document.getElementById("analysis-history-select").value;
+
+      if (!selectedId) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור ניתוח שמור לטעינה.</div>`;
+        return;
+      }
+
+      const items = getAnalysisHistory();
+      const selected = items.find(item => item.id === selectedId);
+
+      if (!selected) {
+        messageBox.innerHTML = `<div class="error-box">הניתוח שנבחר לא נמצא.</div>`;
+        return;
+      }
+
+      lastAnalysisPayload = selected.payload;
+      lastAnalysisResult = selected.result;
+
+      fillInvestorProfile(selected.payload.investor);
+
+      const container = document.getElementById("assets-container");
+      container.innerHTML = "";
+
+      (selected.payload.assets || []).forEach(asset => {
+        addAssetForm({
+          asset_name: asset.instrument?.asset_name || "",
+          asset_type: asset.instrument?.asset_type || "mutual_fund",
+          security_number: asset.instrument?.security_number || "",
+          exchange: asset.instrument?.exchange || "TASE",
+          currency: asset.instrument?.currency || "ILS",
+          classification: asset.instrument?.classification || "",
+          quantity: asset.position?.quantity || 0,
+          current_price: asset.position?.current_price || 0,
+          current_value: asset.position?.current_value || 0,
+          avg_buy_price: asset.position?.avg_buy_price || 0,
+          cost_basis: asset.position?.cost_basis || 0,
+          equity_exposure: asset.analytics?.equity_exposure || 0,
+          fx_exposure: asset.analytics?.fx_exposure || 0,
+          std_dev_12m: asset.analytics?.std_dev_12m || 0,
+          sharpe_ratio: asset.analytics?.sharpe_ratio || 0,
+          return_12m: asset.analytics?.return_12m || 0,
+          return_3y: asset.analytics?.return_3y || 0,
+          management_fee: asset.analytics?.management_fee || 0
+        });
+      });
+
+      document.getElementById("analysis-history-note").value = selected.note;
+      renderFullAnalysisResult(selected.result, selected.payload);
+      messageBox.innerHTML = `<div class="success-box">הניתוח נטען מההיסטוריה.</div>`;
+    }
+
+    function deleteSelectedAnalysisHistory() {
+      const messageBox = document.getElementById("message-box");
+      const selectedId = document.getElementById("analysis-history-select").value;
+
+      if (!selectedId) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור ניתוח למחיקה.</div>`;
+        return;
+      }
+
+      const items = getAnalysisHistory().filter(item => item.id !== selectedId);
+      saveAnalysisHistory(items);
+      refreshAnalysisHistorySelect();
+
+      messageBox.innerHTML = `<div class="success-box">הניתוח נמחק מההיסטוריה.</div>`;
+    }
+
+    function clearAllAnalysisHistory() {
+      const messageBox = document.getElementById("message-box");
+      saveAnalysisHistory([]);
+      refreshAnalysisHistorySelect();
+      messageBox.innerHTML = `<div class="success-box">כל היסטוריית הניתוחים נמחקה.</div>`;
+    }
+    function renderFullAnalysisResult(data, payload) {
+      document.getElementById("dashboard").classList.remove("hidden");
+
+      const summaryPayload = {
+        total_value: payload.assets.reduce((sum, asset) => sum + asset.position.current_value, 0),
+        base_currency: payload.investor.base_currency,
+        risk_level: payload.investor.risk_level,
+        investment_horizon_years: payload.investor.investment_horizon_years,
+        monthly_new_cash: payload.investor.monthly_new_cash,
+        total_equity_exposure: data.risk_report?.metrics?.equity_exposure,
+        total_fx_exposure: data.risk_report?.metrics?.fx_exposure,
+        current_allocation: data.current_allocation
+      };
+
+      renderPortfolioSummary({
+        ...summaryPayload,
+        target_allocation: data.target_allocation,
+        current_allocation: data.current_allocation
+      });
+
+      renderRiskSummary(data.risk_report);
+      renderBuyRecommendations(
+        data.specific_asset_recommendations,
+        data.new_cash_recommendation
+      );
+      renderHoldReduceRecommendations(data.hold_reduce_recommendations);
+      renderWarnings(data.risk_report?.warnings || []);
+      renderStrengths(data.risk_report?.strengths || []);
+      renderOverlaps(data.overlaps || []);
+      renderDiversification(data.diversification);
+      renderExplanation(data.explanation);
+      renderDataQuality(data.data_quality);
+      renderClientReport(data.client_report);
+      renderAiExplainer(data.ai_explainer_output);
+      renderPortfolioPieChart(payload);      
+      renderAllocationBarChart(data);
+    }
+
+    function saveCurrentPortfolio() {
+      const messageBox = document.getElementById("message-box");
+      const portfolioName = document.getElementById("portfolio-name").value.trim();
+
+      try {
+        if (!portfolioName) {
+          throw new Error("יש להזין שם לתיק לפני השמירה.");
+        }
+
+        const assets = collectAssets();
+        const investor = buildInvestorProfileFromOnboarding();
+        const portfolios = getSavedPortfolios();
+
+        portfolios[portfolioName] = {
+          investor,
+          assets,
+          saved_at: new Date().toISOString()
+        };
+
+        saveAllPortfolios(portfolios);
+        refreshSavedPortfoliosSelect();
+
+        document.getElementById("saved-portfolios").value = portfolioName;
+        messageBox.innerHTML = `<div class="success-box">התיק "${portfolioName}" נשמר בהצלחה.</div>`;
+      } catch (error) {
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    function loadSelectedPortfolio() {
+      const messageBox = document.getElementById("message-box");
+      const selectedName = document.getElementById("saved-portfolios").value;
+
+      try {
+        if (!selectedName) {
+          throw new Error("יש לבחור תיק שמור לטעינה.");
+        }
+
+        const portfolios = getSavedPortfolios();
+        const portfolio = portfolios[selectedName];
+
+        if (!portfolio) {
+          throw new Error("התיק שנבחר לא נמצא.");
+        }
+
+        fillInvestorProfile(portfolio.investor || {});
+        document.getElementById("portfolio-name").value = selectedName;
+
+        const container = document.getElementById("assets-container");
+        container.innerHTML = "";
+
+        (portfolio.assets || []).forEach(asset => {
+          addAssetForm({
+            asset_name: asset.instrument?.asset_name || "",
+            asset_type: asset.instrument?.asset_type || "mutual_fund",
+            security_number: asset.instrument?.security_number || "",
+            exchange: asset.instrument?.exchange || "TASE",
+            currency: asset.instrument?.currency || "ILS",
+            classification: asset.instrument?.classification || "",
+            quantity: asset.position?.quantity || 0,
+            current_price: asset.position?.current_price || 0,
+            current_value: asset.position?.current_value || 0,
+            avg_buy_price: asset.position?.avg_buy_price || 0,
+            cost_basis: asset.position?.cost_basis || 0,
+            equity_exposure: asset.analytics?.equity_exposure || 0,
+            fx_exposure: asset.analytics?.fx_exposure || 0,
+            std_dev_12m: asset.analytics?.std_dev_12m || 0,
+            sharpe_ratio: asset.analytics?.sharpe_ratio || 0,
+            return_12m: asset.analytics?.return_12m || 0,
+            return_3y: asset.analytics?.return_3y || 0,
+            management_fee: asset.analytics?.management_fee || 0
+          });
+        });
+
+        messageBox.innerHTML = `<div class="success-box">התיק "${selectedName}" נטען בהצלחה.</div>`;
+      } catch (error) {
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    function deleteSelectedPortfolio() {
+      const messageBox = document.getElementById("message-box");
+      const selectedName = document.getElementById("saved-portfolios").value;
+
+      try {
+        if (!selectedName) {
+          throw new Error("יש לבחור תיק שמור למחיקה.");
+        }
+
+        const portfolios = getSavedPortfolios();
+
+        if (!portfolios[selectedName]) {
+          throw new Error("התיק שנבחר לא נמצא.");
+        }
+
+        delete portfolios[selectedName];
+        saveAllPortfolios(portfolios);
+        refreshSavedPortfoliosSelect();
+
+        document.getElementById("portfolio-name").value = "";
+        messageBox.innerHTML = `<div class="success-box">התיק "${selectedName}" נמחק.</div>`;
+      } catch (error) {
+        messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+
+    function getSavedMappingTemplates() {
+      const raw = localStorage.getItem("csv_mapping_templates");
+      if (!raw) {
+        return {};
+      }
+
+      try {
+        return JSON.parse(raw);
+      } catch {
+        return {};
+      }
+    }
+
+    function saveAllMappingTemplates(templates) {
+      localStorage.setItem("csv_mapping_templates", JSON.stringify(templates));
+    }
+
+    function refreshMappingTemplateSelect() {
+      const select = document.getElementById("mapping-template-select");
+      const templates = getSavedMappingTemplates();
+
+      select.innerHTML = `<option value="">-- בחר תבנית --</option>`;
+
+      Object.keys(templates)
+        .sort((a, b) => a.localeCompare(b, "he"))
+        .forEach(name => {
+          const option = document.createElement("option");
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+        });
+    }
+
+    function saveMappingTemplate() {
+      const messageBox = document.getElementById("message-box");
+      const templateName = document.getElementById("mapping-template-name").value.trim();
+
+      if (!templateName) {
+        messageBox.innerHTML = `<div class="error-box">יש להזין שם לתבנית לפני השמירה.</div>`;
+        return;
+      }
+
+      const mapping = collectCsvMapping();
+      const templates = getSavedMappingTemplates();
+
+      templates[templateName] = {
+        mapping: mapping,
+        saved_at: new Date().toISOString()
+      };
+
+      saveAllMappingTemplates(templates);
+      refreshMappingTemplateSelect();
+
+      document.getElementById("mapping-template-select").value = templateName;
+      messageBox.innerHTML = `<div class="success-box">התבנית "${templateName}" נשמרה בהצלחה.</div>`;
+    }
+
+    function loadSelectedMappingTemplate() {
+      const messageBox = document.getElementById("message-box");
+      const selectedName = document.getElementById("mapping-template-select").value;
+
+      if (!selectedName) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור תבנית לטעינה.</div>`;
+        return;
+      }
+
+      const templates = getSavedMappingTemplates();
+      const template = templates[selectedName];
+
+      if (!template || !template.mapping) {
+        messageBox.innerHTML = `<div class="error-box">התבנית שנבחרה אינה תקינה.</div>`;
+        return;
+      }
+
+      applyCsvMapping(template.mapping);
+      document.getElementById("mapping-template-name").value = selectedName;
+      messageBox.innerHTML = `<div class="success-box">התבנית "${selectedName}" נטענה.</div>`;
+    }
+
+    function deleteSelectedMappingTemplate() {
+      const messageBox = document.getElementById("message-box");
+      const selectedName = document.getElementById("mapping-template-select").value;
+
+      if (!selectedName) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור תבנית למחיקה.</div>`;
+        return;
+      }
+
+      const templates = getSavedMappingTemplates();
+
+      if (!templates[selectedName]) {
+        messageBox.innerHTML = `<div class="error-box">התבנית שנבחרה לא נמצאה.</div>`;
+        return;
+      }
+
+      delete templates[selectedName];
+      saveAllMappingTemplates(templates);
+      refreshMappingTemplateSelect();
+      document.getElementById("mapping-template-name").value = "";
+
+      messageBox.innerHTML = `<div class="success-box">התבנית "${selectedName}" נמחקה.</div>`;
+    }
+
+    function applyCsvMapping(mapping) {
+      Object.entries(mapping).forEach(([field, value]) => {
+        const select = document.getElementById(`map_${field}`);
+        if (!select) {
+          return;
+        }
+
+        const hasOption = Array.from(select.options).some(option => option.value === value);
+        if (hasOption) {
+          select.value = value;
+        }
+      });
+    }
+    
+        function fillExampleData() {
+      const container = document.getElementById("assets-container");
+      container.innerHTML = "";
+
+    }
+    
+        async function prepareCsvImport() {
+      const fileInput = document.getElementById("csv-file");
+      const messageBox = document.getElementById("message-box");
+      const mappingSection = document.getElementById("csv-mapping-section");
+      const previewSection = document.getElementById("csv-preview-section");
+      const previewContainer = document.getElementById("csv-preview-table-container");
+
+      messageBox.innerHTML = "";
+
+      if (!fileInput.files || fileInput.files.length === 0) {
+        messageBox.innerHTML = `<div class="error-box">יש לבחור קובץ CSV לפני הטעינה.</div>`;
+        return;
+      }
+
+      try {
+        const file = fileInput.files[0];
+        const text = await file.text();
+        const parsedRows = parseCsv(text);
+
+        if (!parsedRows.length) {
+          throw new Error("לא נמצאו שורות נתונים בקובץ.");
+        }
+
+        csvRows = parsedRows;
+        csvHeaders = Object.keys(parsedRows[0] || {});
+
+        renderCsvMappingFields(csvHeaders);
+        refreshMappingTemplateSelect();
+        mappingSection.classList.remove("hidden");
+        previewSection.classList.add("hidden");
+        previewContainer.innerHTML = "";
+
+        messageBox.innerHTML = `<div class="success-box">הקובץ נטען. עכשיו בחר מיפוי עמודות.</div>`;
+      } catch (error) {
+        messageBox.innerHTML = `<div class="error-box">שגיאה בקריאת הקובץ: ${error.message}</div>`;
+      }
+    }
+
+    function renderCsvMappingFields(headers) {
+      const fieldsContainer = document.getElementById("csv-mapping-fields");
+      fieldsContainer.innerHTML = "";
+
+      const requiredFields = [
+        { key: "asset_name", label: "שם נכס" },
+        { key: "asset_type", label: "סוג נכס" },
+        { key: "security_number", label: "מספר נייר" },
+        { key: "exchange", label: "בורסה" },
+        { key: "currency", label: "מטבע" },
+        { key: "classification", label: "סיווג" },
+        { key: "quantity", label: "כמות" },
+        { key: "current_price", label: "מחיר נוכחי" },
+        { key: "avg_buy_price", label: "מחיר קנייה ממוצע" },
+        { key: "current_value", label: "שווי נוכחי" },
+        { key: "cost_basis", label: "בסיס עלות" },
+        { key: "equity_exposure", label: "חשיפה למניות" },
+        { key: "fx_exposure", label: "חשיפה למט\"ח" },
+        { key: "std_dev_12m", label: "סטיית תקן 12 חודשים" },
+        { key: "sharpe_ratio", label: "שארפ" },
+        { key: "return_12m", label: "תשואה 12 חודשים" },
+        { key: "return_3y", label: "תשואה 3 שנים" },
+        { key: "management_fee", label: "דמי ניהול" }
+      ];
+
+      requiredFields.forEach(field => {
+        const wrapper = document.createElement("div");
+
+        const guessedHeader = guessHeaderForField(field.key, headers);
+
+        wrapper.innerHTML = `
+          <label for="map_${field.key}">${field.label}</label>
+          <select id="map_${field.key}">
+            <option value="">-- ללא מיפוי --</option>
+            ${headers.map(header => `
+              <option value="${escapeHtml(header)}" ${guessedHeader === header ? "selected" : ""}>
+                ${escapeHtml(header)}
+              </option>
+            `).join("")}
+          </select>
+        `;
+
+        fieldsContainer.appendChild(wrapper);
+      });
+    }
+
+    function guessHeaderForField(fieldKey, headers) {
+      const aliases = {
+        asset_name: ["asset_name", "שם נכס", "name", "security_name", "שם נייר"],
+        asset_type: ["asset_type", "סוג נכס", "type", "security_type"],
+        security_number: ["security_number", "מספר נייר", "symbol", "ticker", "מספר"],
+        exchange: ["exchange", "בורסה", "market"],
+        currency: ["currency", "מטבע"],
+        classification: ["classification", "סיווג", "category"],
+        quantity: ["quantity", "כמות", "units"],
+        current_price: ["current_price", "מחיר נוכחי", "price", "שער נוכחי", "שער"],
+        avg_buy_price: ["avg_buy_price", "מחיר קנייה ממוצע", "average_buy_price", "שער קנייה ממוצע"],
+        current_value: ["current_value", "שווי נוכחי", "value", "market_value"],
+        cost_basis: ["cost_basis", "בסיס עלות", "עלות", "cost"],
+        equity_exposure: ["equity_exposure", "חשיפה למניות"],
+        fx_exposure: ["fx_exposure", "חשיפה למט\"ח", "חשיפה למטח"],
+        std_dev_12m: ["std_dev_12m", "סטיית תקן 12 חודשים", "std_dev"],
+        sharpe_ratio: ["sharpe_ratio", "שארפ", "sharpe"],
+        return_12m: ["return_12m", "תשואה 12 חודשים", "return12m"],
+        return_3y: ["return_3y", "תשואה 3 שנים", "return3y"],
+        management_fee: ["management_fee", "דמי ניהול", "fee"]
+      };
+
+      const possibleNames = aliases[fieldKey] || [];
+
+      for (const header of headers) {
+        const normalizedHeader = header.trim().toLowerCase();
+        for (const possible of possibleNames) {
+          if (normalizedHeader === possible.trim().toLowerCase()) {
+            return header;
+          }
+        }
+      }
+
+      return "";
+    }
+
+    function completeCsvImport() {
+      const messageBox = document.getElementById("message-box");
+
+      try {
+        if (!csvRows.length) {
+          throw new Error("אין נתוני CSV טעונים.");
+        }
+
+        const mapping = collectCsvMapping();
+        const mappedAssets = csvRows.map(row => mapCsvRowWithMapping(row, mapping));
+
+        const validAssets = mappedAssets.filter(asset => asset.asset_name && asset.asset_name.trim() !== "");
+
+        if (!validAssets.length) {
+          throw new Error("לא נמצאו נכסים תקינים לאחר המיפוי.");
+        }
+
+        const container = document.getElementById("assets-container");
+        container.innerHTML = "";
+
+        validAssets.forEach(asset => {
+          addAssetForm(asset);
+        });
+
+        messageBox.innerHTML = `<div class="success-box">יובאו ${validAssets.length} נכסים לפי המיפוי שנבחר.</div>`;
+      } catch (error) {
+        messageBox.innerHTML = `<div class="error-box">שגיאה בהשלמת הייבוא: ${error.message}</div>`;
+      }
+    }
+
+    function previewCsvImport() {
+      const messageBox = document.getElementById("message-box");
+      const previewSection = document.getElementById("csv-preview-section");
+      const previewContainer = document.getElementById("csv-preview-table-container");
+
+      try {
+        if (!csvRows.length) {
+          throw new Error("אין נתוני CSV טעונים להצגה מקדימה.");
+        }
+
+        const mapping = collectCsvMapping();
+        const mappedAssets = csvRows.map(row => mapCsvRowWithMapping(row, mapping));
+        const previewAssets = mappedAssets.slice(0, 5);
+
+        if (!previewAssets.length) {
+          throw new Error("לא נמצאו שורות לתצוגה מקדימה.");
+        }
+
+        let html = `
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>שם נכס</th>
+                <th>סוג נכס</th>
+                <th>מספר נייר</th>
+                <th>כמות</th>
+                <th>מחיר נוכחי</th>
+                <th>שווי נוכחי</th>
+                <th>מחיר קנייה ממוצע</th>
+                <th>בסיס עלות</th>
+                <th>חשיפה למניות</th>
+                <th>דמי ניהול</th>
+              </tr>
+            </thead>
+            <tbody>
+        `;
+
+        previewAssets.forEach((asset, index) => {
+          const rowClass = asset.asset_name ? "preview-good" : "preview-bad";
+
+          html += `
+            <tr class="${rowClass}">
+              <td>${index + 1}</td>
+              <td>${escapeHtml(asset.asset_name || "")}</td>
+              <td>${escapeHtml(asset.asset_type || "")}</td>
+              <td>${escapeHtml(asset.security_number || "")}</td>
+              <td>${formatPreviewValue(asset.quantity)}</td>
+              <td>${formatPreviewValue(asset.current_price)}</td>
+              <td>${formatPreviewValue(asset.current_value)}</td>
+              <td>${formatPreviewValue(asset.avg_buy_price)}</td>
+              <td>${formatPreviewValue(asset.cost_basis)}</td>
+              <td>${formatPreviewValue(asset.equity_exposure)}</td>
+              <td>${formatPreviewValue(asset.management_fee)}</td>
+            </tr>
+          `;
+        });
+
+        html += `
+            </tbody>
+          </table>
+        `;
+
+        previewContainer.innerHTML = html;
+        previewSection.classList.remove("hidden");
+        messageBox.innerHTML = `<div class="success-box">התצוגה המקדימה נבנתה בהצלחה.</div>`;
+      } catch (error) {
+        previewSection.classList.add("hidden");
+        previewContainer.innerHTML = "";
+        messageBox.innerHTML = `<div class="error-box">שגיאה בתצוגה המקדימה: ${error.message}</div>`;
+      }
+    }
+
+    function collectCsvMapping() {
+      const fields = [
+        "asset_name",
+        "asset_type",
+        "security_number",
+        "exchange",
+        "currency",
+        "classification",
+        "quantity",
+        "current_price",
+        "avg_buy_price",
+        "current_value",
+        "cost_basis",
+        "equity_exposure",
+        "fx_exposure",
+        "std_dev_12m",
+        "sharpe_ratio",
+        "return_12m",
+        "return_3y",
+        "management_fee"
+      ];
+
+      const mapping = {};
+
+      fields.forEach(field => {
+        const select = document.getElementById(`map_${field}`);
+        mapping[field] = select ? select.value : "";
+      });
+
+      return mapping;
+    }
+
+    function mapCsvRowWithMapping(row, mapping) {
+      function getMappedValue(fieldName) {
+        const columnName = mapping[fieldName];
+        if (!columnName) {
+          return "";
+        }
+        return row[columnName] ?? "";
+      }
+
+      const assetType = getMappedValue("asset_type") || "mutual_fund";
+      const quantity = toNumber(getMappedValue("quantity"));
+      const currentPrice = toNumber(getMappedValue("current_price"));
+      const avgBuyPrice = toNumber(getMappedValue("avg_buy_price"));
+
+      const currentValueRaw = getMappedValue("current_value");
+      const costBasisRaw = getMappedValue("cost_basis");
+
+      const currentValue =
+        currentValueRaw !== ""
+          ? toNumber(currentValueRaw)
+          : quantity * currentPrice;
+
+      const costBasis =
+        costBasisRaw !== ""
+          ? toNumber(costBasisRaw)
+          : quantity * avgBuyPrice;
+
+      return {
+        asset_name: getMappedValue("asset_name"),
+        asset_type: assetType,
+        security_number: getMappedValue("security_number"),
+        exchange: getMappedValue("exchange") || "TASE",
+        currency: getMappedValue("currency") || "ILS",
+        classification: getMappedValue("classification"),
+        quantity: quantity,
+        current_price: currentPrice,
+        current_value: currentValue,
+        avg_buy_price: avgBuyPrice,
+        cost_basis: costBasis,
+        equity_exposure: toNumber(getMappedValue("equity_exposure")),
+        fx_exposure: toNumber(getMappedValue("fx_exposure")),
+        std_dev_12m: toNumber(getMappedValue("std_dev_12m")),
+        sharpe_ratio: toNumber(getMappedValue("sharpe_ratio")),
+        return_12m: toNumber(getMappedValue("return_12m")),
+        return_3y: toNumber(getMappedValue("return_3y")),
+        management_fee: toNumber(getMappedValue("management_fee"))
+      };
+    }
+
+    function escapeHtml(text) {
+      return String(text)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+
+    function getDefaultAdvancedValuesByAssetType(assetType) {
+      switch (assetType) {
+        case "mutual_fund":
+          return {
+            classification: "index_fund",
+            equity_exposure: 0.8,
+            fx_exposure: 0.0
+          };
+        case "bond_fund":
+          return {
+            classification: "bond_fund",
+            equity_exposure: 0.1,
+            fx_exposure: 0.0
+          };
+        case "stock":
+          return {
+            classification: "stock",
+            equity_exposure: 1.0,
+            fx_exposure: 0.0
+          };
+        case "etf":
+          return {
+            classification: "etf",
+            equity_exposure: 0.8,
+            fx_exposure: 0.0
+          };
+        case "cash":
+          return {
+            classification: "money_market",
+            equity_exposure: 0.0,
+            fx_exposure: 0.0
+          };
+        default:
+          return {
+            classification: "",
+            equity_exposure: 0.0,
+            fx_exposure: 0.0
+          };
+      }
+    }
+
+    function applyAssetTypeBehavior(wrapper) {
+      const assetTypeSelect = wrapper.querySelector(".asset_type");
+      const classificationInput = wrapper.querySelector(".classification");
+      const equityExposureInput = wrapper.querySelector(".equity_exposure");
+      const fxExposureInput = wrapper.querySelector(".fx_exposure");
+      const stdDevInput = wrapper.querySelector(".std_dev_12m");
+      const sharpeInput = wrapper.querySelector(".sharpe_ratio");
+      const return12mInput = wrapper.querySelector(".return_12m");
+      const return3yInput = wrapper.querySelector(".return_3y");
+      const managementFeeInput = wrapper.querySelector(".management_fee");
+
+      function updateFieldsByType() {
+        const assetType = assetTypeSelect.value;
+        const defaults = getDefaultAdvancedValuesByAssetType(assetType);
+
+        if (!classificationInput.value.trim()) {
+          classificationInput.value = defaults.classification;
+        }
+
+        if (
+          equityExposureInput.value === "" ||
+          Number(equityExposureInput.value) === 0
+        ) {
+          equityExposureInput.value = defaults.equity_exposure;
+        }
+
+        if (
+          fxExposureInput.value === "" ||
+          Number(fxExposureInput.value) === 0
+        ) {
+          fxExposureInput.value = defaults.fx_exposure;
+        }
+
+        const isCash = assetType === "cash";
+
+        stdDevInput.disabled = isCash;
+        sharpeInput.disabled = isCash;
+        return12mInput.disabled = isCash;
+        return3yInput.disabled = isCash;
+        managementFeeInput.disabled = false;
+
+        if (isCash) {
+          stdDevInput.value = 0;
+          sharpeInput.value = 0;
+          return12mInput.value = 0;
+          return3yInput.value = 0;
+          equityExposureInput.value = 0;
+          fxExposureInput.value = 0;
+        }
+      }
+
+      assetTypeSelect.addEventListener("change", updateFieldsByType);
+      updateFieldsByType();
+    }
+
+    function parseCsvLine(line) {
+      const result = [];
+      let current = "";
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        const nextChar = line[i + 1];
+
+        if (char === '"' && inQuotes && nextChar === '"') {
+          current += '"';
+          i++;
+        } else if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === "," && !inQuotes) {
+          result.push(current.trim());
+          current = "";
+        } else {
+          current += char;
+        }
+      }
+
+      result.push(current.trim());
+      return result;
+    }
+
+    function parseCsv(text) {
+      const lines = text
+        .split(/\r?\n/)
+        .map(line => line.trim())
+        .filter(line => line.length > 0);
+
+      if (lines.length < 2) {
+        throw new Error("קובץ ה-CSV חייב להכיל לפחות שורת כותרת ושורת נתונים אחת.");
+      }
+
+      const headers = parseCsvLine(lines[0]);
+      const rows = lines.slice(1);
+
+      return rows.map(row => {
+        const values = parseCsvLine(row);
+        const obj = {};
+
+        headers.forEach((header, index) => {
+          obj[header.trim()] = values[index] ?? "";
+        });
+
+        return obj;
+      });
+    }
+
+    function toNumber(value, defaultValue = 0) {
+      if (value === undefined || value === null || value === "") {
+        return defaultValue;
+      }
+
+      const normalized = String(value).replace(/,/g, "").trim();
+      const num = Number(normalized);
+
+      return Number.isNaN(num) ? defaultValue : num;
+    }
+
+    function mapCsvRowToAsset(row) {
+      const assetType = row.asset_type || row["סוג נכס"] || "mutual_fund";
+      const quantity = toNumber(row.quantity || row["כמות"]);
+      const currentPrice = toNumber(row.current_price || row["מחיר נוכחי"]);
+      const avgBuyPrice = toNumber(row.avg_buy_price || row["מחיר קנייה ממוצע"]);
+
+      const currentValueRaw = row.current_value || row["שווי נוכחי"];
+      const costBasisRaw = row.cost_basis || row["בסיס עלות"];
+
+      const currentValue =
+        currentValueRaw !== undefined && currentValueRaw !== ""
+          ? toNumber(currentValueRaw)
+          : quantity * currentPrice;
+
+      const costBasis =
+        costBasisRaw !== undefined && costBasisRaw !== ""
+          ? toNumber(costBasisRaw)
+          : quantity * avgBuyPrice;
+
+      return {
+        asset_name: row.asset_name || row["שם נכס"] || "",
+        asset_type: assetType,
+        security_number: row.security_number || row["מספר נייר"] || "",
+        exchange: row.exchange || row["בורסה"] || "TASE",
+        currency: row.currency || row["מטבע"] || "ILS",
+        classification: row.classification || row["סיווג"] || "",
+        quantity: quantity,
+        current_price: currentPrice,
+        current_value: currentValue,
+        avg_buy_price: avgBuyPrice,
+        cost_basis: costBasis,
+        equity_exposure: toNumber(row.equity_exposure || row["חשיפה למניות"]),
+        fx_exposure: toNumber(row.fx_exposure || row["חשיפה למט\"ח"]),
+        std_dev_12m: toNumber(row.std_dev_12m || row["סטיית תקן 12 חודשים"]),
+        sharpe_ratio: toNumber(row.sharpe_ratio || row["שארפ"]),
+        return_12m: toNumber(row.return_12m || row["תשואה 12 חודשים"]),
+        return_3y: toNumber(row.return_3y || row["תשואה 3 שנים"]),
+        management_fee: toNumber(row.management_fee || row["דמי ניהול"])
+      };
+    }
+
+    function formatCurrency(value) {
+  return `${Number(value || 0).toLocaleString("he-IL", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })} ₪`;
+}
+
+function formatPercent(value) {
+  return `${Number(value || 0).toLocaleString("he-IL", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  })}%`;
+}
+
+function updatePortfolioDashboard() {
+  const assetCards = document.querySelectorAll("#assets-container .asset-card");
+
+  let totalCurrentValue = 0;
+  let totalCostBasis = 0;
+
+  assetCards.forEach(card => {
+    totalCurrentValue += Number(card.querySelector(".current_value")?.value) || 0;
+    totalCostBasis += Number(card.querySelector(".cost_basis")?.value) || 0;
+  });
+
+  const profit = totalCurrentValue - totalCostBasis;
+  const totalReturnPercent = totalCostBasis > 0
+    ? ((profit / totalCostBasis) * 100)
+    : 0;
+
+  console.log("Dashboard values:", {
+    totalCurrentValue,
+    totalCostBasis,
+    profit,
+    totalReturnPercent
+  });
+
+  const currentValueEl = document.getElementById("summary-current-value");
+  const costBasisEl = document.getElementById("summary-cost-basis");
+  const profitEl = document.getElementById("summary-profit");
+  const returnEl = document.getElementById("summary-return");
+
+  if (currentValueEl) {
+    currentValueEl.textContent = formatCurrency(totalCurrentValue);
+  }
+
+  if (costBasisEl) {
+    costBasisEl.textContent = formatCurrency(totalCostBasis);
+  }
+
+  if (profitEl) {
+    profitEl.textContent = formatCurrency(profit);
+    profitEl.classList.remove("positive", "negative");
+    profitEl.classList.add(profit >= 0 ? "positive" : "negative");
+  }
+
+  if (returnEl) {
+    returnEl.textContent = `${totalReturnPercent.toFixed(2)}%`;
+    returnEl.classList.remove("positive", "negative");
+    returnEl.classList.add(totalReturnPercent >= 0 ? "positive" : "negative");
+  }
+}
+
+let portfolioChart;
+
+function getAssetTypeLabel(type) {
+  switch (type) {
+    case "stock":
+      return "מניות";
+    case "etf":
+      return "ETF";
+    case "mutual_fund":
+      return "קרנות נאמנות";
+    case "bond_fund":
+      return "קרנות אג\"ח";
+    case "cash":
+      return "מזומן";
+    default:
+      return "אחר";
+  }
+}
+
+function updatePortfolioAllocation() {
+  const assetCards = document.querySelectorAll(".asset-card");
+  const categories = {};
+
+  assetCards.forEach(card => {
+    const type = card.querySelector(".asset_type")?.value || "other";
+    const value = Number(card.querySelector(".current_value")?.value) || 0;
+
+    if (value > 0) {
+      categories[type] = (categories[type] || 0) + value;
+    }
+  });
+
+  const rawLabels = Object.keys(categories);
+  const labels = rawLabels.map(getAssetTypeLabel);
+  const data = Object.values(categories);
+  const total = data.reduce((sum, value) => sum + value, 0);
+
+  const centerEl = document.getElementById("portfolio-total-center");
+  if (centerEl) {
+    centerEl.textContent = formatCurrency(total);
+  }
+
+  const legend = document.getElementById("allocation-legend");
+  if (legend) {
+    legend.innerHTML = "";
+  }
+
+  const canvas = document.getElementById("portfolioChart");
+  if (!canvas) return;
+
+  if (data.length === 0) {
+    if (portfolioChart) {
+      portfolioChart.destroy();
+      portfolioChart = null;
+    }
+    if (legend) {
+      legend.innerHTML = `<div class="legend-item"><span class="legend-label">אין עדיין נתונים לתצוגה</span></div>`;
+    }
+    return;
+  }
+
+  const ctx = canvas.getContext("2d");
+
+  if (portfolioChart) {
+    portfolioChart.destroy();
+  }
+
+  portfolioChart = new Chart(ctx, {
+    type: "doughnut",
+    data: {
+      labels: labels,
+      datasets: [{
+        data: data,
+        backgroundColor: [
+          "#1d4ed8",
+          "#06b6d4",
+          "#14b8a6",
+          "#8b5cf6",
+          "#f97316",
+          "#94a3b8"
+        ],
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: false,
+      cutout: "68%",
+      plugins: {
+        legend: {
+          display: false
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const value = context.raw || 0;
+              const percent = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+              return `${context.label}: ${formatCurrency(value)} (${percent}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+
+  if (legend) {
+    labels.forEach((label, index) => {
+      const value = data[index];
+      const percent = total > 0 ? ((value / total) * 100).toFixed(1) : "0.0";
+
+      legend.innerHTML += `
+        <div class="legend-item">
+          <span class="legend-label">${label}</span>
+          <span class="legend-value">${formatCurrency(value)} | ${percent}%</span>
+        </div>
+      `;
+    });
+  }
+}
+let currentDraftAssetCard = null;
+let currentEditingAssetCard = null;
+
+function formatNumber(value) {
+  return Number(value || 0).toLocaleString("he-IL", {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
+}
+
+function getAssetTypeLabel(type) {
+  switch (type) {
+    case "mutual_fund":
+      return "קרן נאמנות";
+    case "bond_fund":
+      return "קרן אג\"ח";
+    case "stock":
+      return "מניה";
+    case "etf":
+      return "ETF";
+    case "cash":
+      return "מזומן";
+    default:
+      return "אחר";
+  }
+}
+
+function openModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.remove("hidden");
+}
+
+function closeModal(modalId) {
+  const modal = document.getElementById(modalId);
+  if (modal) modal.classList.add("hidden");
+}
+
+function renderAssetSummaryList() {
+  const listEl = document.getElementById("asset-summary-list");
+  const assetCards = document.querySelectorAll("#assets-container .asset-card");
+
+  if (!listEl) return;
+
+  listEl.innerHTML = "";
+
+  assetCards.forEach((card, index) => {
+    const assetName = card.querySelector(".asset_name")?.value || `נכס ${index + 1}`;
+    const assetType = getAssetTypeLabel(card.querySelector(".asset_type")?.value || "other");
+    const quantity = Number(card.querySelector(".quantity")?.value) || 0;
+    const currentValue = Number(card.querySelector(".current_value")?.value) || 0;
+
+    const row = document.createElement("div");
+    row.className = "asset-summary-row";
+
+    row.innerHTML = `
+      <div class="asset-summary-main">${assetName}</div>
+      <div class="asset-summary-meta">סוג: ${assetType}</div>
+      <div class="asset-summary-meta">כמות: ${formatNumber(quantity)}</div>
+      <div class="asset-summary-value">${formatCurrency(currentValue)}</div>
+      <div class="asset-summary-actions">
+        <button class="btn btn-primary edit-asset-summary-btn" type="button">ערוך</button>
+        <button class="btn btn-outline show-asset-details-btn" type="button">עוד מידע</button>
+        <button class="btn btn-secondary delete-asset-summary-btn" type="button">מחק</button>
+      </div>
+    `;
+
+    row.querySelector(".edit-asset-summary-btn").addEventListener("click", () => {
+  const modalBody = document.getElementById("asset-form-modal-body");
+  const modalTitle = document.querySelector("#asset-modal .modal-header h3");
+  const confirmButton = document.getElementById("confirm-add-asset-btn");
+
+  if (!modalBody) return;
+
+  currentEditingAssetCard = card;
+  currentDraftAssetCard = createAssetForm(collectSingleAssetForEditing(card));
+
+  modalBody.innerHTML = "";
+  modalBody.appendChild(currentDraftAssetCard);
+
+  if (modalTitle) {
+    modalTitle.textContent = "עריכת נכס";
+  }
+
+  if (confirmButton) {
+    confirmButton.textContent = "שמור שינויים";
+  }
+
+  openModal("asset-modal");
+});
+    
+    row.querySelector(".show-asset-details-btn").addEventListener("click", () => {
+      openAssetDetailsModal(card);
+    });
+
+    row.querySelector(".delete-asset-summary-btn").addEventListener("click", () => {
+      card.remove();
+      updatePortfolioDashboard();
+      updatePortfolioAllocation();
+      renderAssetSummaryList();
+      saveCurrentPortfolioAssets();
+      addPortfolioHistorySnapshot(true);
+      renderPortfolioHistoryChart();
+    });
+
+    listEl.appendChild(row);
+  });
+}
+
+function openAssetDetailsModal(card) {
+  const body = document.getElementById("asset-details-modal-body");
+  if (!body || !card) return;
+
+  const fields = [
+    ["שם נכס", card.querySelector(".asset_name")?.value || "-"],
+    ["סוג נכס", getAssetTypeLabel(card.querySelector(".asset_type")?.value || "other")],
+    ["מספר נייר", card.querySelector(".security_number")?.value || "-"],
+    ["בורסה", card.querySelector(".exchange")?.value || "-"],
+    ["מטבע", card.querySelector(".currency")?.value || "-"],
+    ["שער המרה ל-ILS", card.querySelector(".fx_rate")?.value || "-"],
+    ["פרופיל חשיפה", card.querySelector(".exposure_profile")?.value || "-"],
+    ["כמות", card.querySelector(".quantity")?.value || "-"],
+    ["מחיר נוכחי", card.querySelector(".current_price")?.value || "-"],
+    ["מחיר קנייה ממוצע", card.querySelector(".avg_buy_price")?.value || "-"],
+    ["שווי נוכחי", card.querySelector(".current_value")?.value || "-"],
+    ["בסיס עלות", card.querySelector(".cost_basis")?.value || "-"],
+    ["חשיפה למניות", card.querySelector(".equity_exposure")?.value || "-"],
+    ["חשיפה למט\"ח", card.querySelector(".fx_exposure")?.value || "-"],
+    ["סטיית תקן 12 חודשים", card.querySelector(".std_dev_12m")?.value || "-"],
+    ["מדד שארפ", card.querySelector(".sharpe_ratio")?.value || "-"],
+    ["תשואה 12 חודשים", card.querySelector(".return_12m")?.value || "-"],
+    ["תשואה 3 שנים", card.querySelector(".return_3y")?.value || "-"],
+    ["דמי ניהול", card.querySelector(".management_fee")?.value || "-"]
+  ];
+
+  body.innerHTML = `
+    <div class="asset-details-grid">
+      ${fields.map(([label, value]) => `
+        <div class="asset-details-item">
+          <div class="asset-details-label">${label}</div>
+          <div class="asset-details-value">${value}</div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  openModal("asset-details-modal");
+}
+
+function getActiveOnboardingProfile() {
+  try {
+    return JSON.parse(localStorage.getItem("portfolio_onboarding_profile") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
+function renderActiveProfileBanner() {
+  const activeProfile = getActiveOnboardingProfile();
+
+  const nameEl = document.getElementById("active-profile-name");
+  const riskEl = document.getElementById("active-profile-risk");
+  const trackEl = document.getElementById("active-profile-track");
+
+  if (!nameEl || !riskEl || !trackEl) return;
+
+  if (!activeProfile) {
+    nameEl.textContent = "-";
+    riskEl.textContent = "-";
+    trackEl.textContent = "-";
+    return;
+  }
+
+  nameEl.textContent = activeProfile.portfolio_name || "-";
+  riskEl.textContent = activeProfile.risk_profile || "-";
+  trackEl.textContent = activeProfile.selected_track || "-";
+}
+
+function getActivePortfolioStorageKey() {
+  const activeProfile = getActiveOnboardingProfile();
+
+  if (!activeProfile || !activeProfile.id) {
+    return "active_portfolio_assets_default";
+  }
+
+  return `active_portfolio_assets_${activeProfile.id}`;
+}
+
+function collectAssetsForStorage() {
+  const assetCards = document.querySelectorAll("#assets-container .asset-card");
+
+  return Array.from(assetCards).map(card => ({
+    asset_name: card.querySelector(".asset_name")?.value || "",
+    asset_type: card.querySelector(".asset_type")?.value || "other",
+    security_number: card.querySelector(".security_number")?.value || "",
+    exchange: card.querySelector(".exchange")?.value || "",
+    currency: card.querySelector(".currency")?.value || "ILS",
+    exposure_profile: card.querySelector(".exposure_profile")?.value || "",
+    fx_rate: Number(card.querySelector(".fx_rate")?.value) || 1,
+    quantity: Number(card.querySelector(".quantity")?.value) || 0,
+    current_price: Number(card.querySelector(".current_price")?.value) || 0,
+    avg_buy_price: Number(card.querySelector(".avg_buy_price")?.value) || 0,
+    current_value: Number(card.querySelector(".current_value")?.value) || 0,
+    cost_basis: Number(card.querySelector(".cost_basis")?.value) || 0,
+    classification: card.querySelector(".classification")?.value || "",
+    equity_exposure: Number(card.querySelector(".equity_exposure")?.value) || 0,
+    fx_exposure: Number(card.querySelector(".fx_exposure")?.value) || 0,
+    std_dev_12m: Number(card.querySelector(".std_dev_12m")?.value) || 0,
+    sharpe_ratio: Number(card.querySelector(".sharpe_ratio")?.value) || 0,
+    return_12m: Number(card.querySelector(".return_12m")?.value) || 0,
+    return_3y: Number(card.querySelector(".return_3y")?.value) || 0,
+    management_fee: Number(card.querySelector(".management_fee")?.value) || 0
+  }));
+}
+
+function saveCurrentPortfolioAssets() {
+  const key = getActivePortfolioStorageKey();
+  const assets = collectAssetsForStorage();
+  localStorage.setItem(key, JSON.stringify(assets));
+}
+
+function loadCurrentPortfolioAssets() {
+  const key = getActivePortfolioStorageKey();
+
+  try {
+    return JSON.parse(localStorage.getItem(key) || "[]");
+  } catch (error) {
+    return [];
+  }
+}
+
+function initializeAssetsFromStorage() {
+  const container = document.getElementById("assets-container");
+  if (!container) return;
+
+  container.innerHTML = "";
+
+  const savedAssets = loadCurrentPortfolioAssets();
+
+  savedAssets.forEach(asset => {
+    container.appendChild(createAssetForm(asset));
+  });
+
+  updatePortfolioDashboard();
+  updatePortfolioAllocation();
+  renderAssetSummaryList();
+}
+
+function getExposurePercentFromProfileChar(char) {
+  const normalized = (char || "").toString().trim().toUpperCase();
+
+  const exposureMap = {
+    "0": 0,
+    "1": 10,
+    "2": 30,
+    "3": 50,
+    "4": 100,
+    "5": 200,
+    "6": 250,
+    "A": 10,
+    "B": 30,
+    "C": 50,
+    "D": 100,
+    "E": 200,
+    "F": 250
+  };
+
+  return exposureMap[normalized] ?? null;
+}
+
+function parseExposureProfile(profile) {
+  const cleaned = (profile || "").toString().trim().toUpperCase().replace(/\s+/g, "");
+
+  if (!cleaned) {
+    return {
+      equityExposure: null,
+      fxExposure: null
+    };
+  }
+
+  const equityChar = cleaned.charAt(0);
+  const fxChar = cleaned.charAt(1);
+
+  return {
+    equityExposure: getExposurePercentFromProfileChar(equityChar),
+    fxExposure: getExposurePercentFromProfileChar(fxChar)
+  };
+}
+
+async function fetchAssetDataBySecurityNumber(securityNumber) {
+  const normalized = String(securityNumber || "").trim();
+  if (!normalized) return null;
+
+  const response = await fetch(
+    `${API_BASE_URL}/market-data?security_number=${encodeURIComponent(normalized)}`
+  );
+
+  if (!response.ok) {
+    return null;
+  }
+
+  const data = await response.json();
+
+  return {
+    asset_name: data.asset_name || null,
+    current_price: data.current_price ?? null,
+    previous_price: data.previous_price ?? null,
+    daily_change_percent: data.daily_change_percent ?? null
+  };
+}
+
+async function updateAllAssetsFromMarketData() {
+  const assetCards = document.querySelectorAll("#assets-container .asset-card");
+
+  for (const card of assetCards) {
+    // 1. לוקחים את השדות מתוך הכרטיס
+    const securityNumberInput = card.querySelector(".security_number");
+    const assetNameInput = card.querySelector(".asset_name");
+    const currentPriceInput = card.querySelector(".current_price");
+    const dailyChangePercentInput = card.querySelector(".daily_change_percent");
+
+    // אם חסר שדה מספר נייר או שדה מחיר - מדלגים
+    if (!securityNumberInput || !currentPriceInput) {
+      continue;
+    }
+
+    // 2. לוקחים את מספר הנייר
+    const securityNumber = securityNumberInput.value?.trim();
+    if (!securityNumber) {
+      continue;
+    }
+
+    // 3. מבקשים נתונים מהשרת
+    const marketData = await fetchAssetDataBySecurityNumber(securityNumber);
+
+    // אם לא חזרו נתונים - מדלגים לנכס הבא
+    if (!marketData) {
+      continue;
+    }
+
+    // 4. אם שם הנכס ריק, נמלא אותו מהשרת
+   if (assetNameInput && marketData.asset_name) {
+      assetNameInput.value = marketData.asset_name;
+    }
+
+    // 5. מעדכנים מחיר נוכחי
+    if (marketData.current_price !== null && marketData.current_price !== undefined) {
+      currentPriceInput.value = marketData.current_price;
+    }
+
+    // 6. מעדכנים שינוי יומי אם יש שדה כזה ואם חזר ערך
+    if (
+      dailyChangePercentInput &&
+      marketData.daily_change_percent !== null &&
+      marketData.daily_change_percent !== undefined
+    ) {
+      dailyChangePercentInput.value = marketData.daily_change_percent;
+    }
+
+    // 7. מפעילים מחדש את החישוב של הכרטיס
+    // במקום לקרוא ישירות לפונקציה פנימית, מפעילים event input
+    currentPriceInput.dispatchEvent(new Event("input", { bubbles: true }));
+
+    if (dailyChangePercentInput) {
+      dailyChangePercentInput.dispatchEvent(new Event("input", { bubbles: true }));
+    }
+  }
+
+  // 8. מרעננים את כל אזורי הסיכום
+  updatePortfolioDashboard();
+  updatePortfolioAllocation();
+  renderAssetSummaryList();
+  saveCurrentPortfolioAssets();
+  addPortfolioHistorySnapshot(true);
+  renderPortfolioHistoryChart();
+}
+
+function collectSingleAssetForEditing(card) {
+  return {
+    asset_name: card.querySelector(".asset_name")?.value || "",
+    asset_type: card.querySelector(".asset_type")?.value || "other",
+    security_number: card.querySelector(".security_number")?.value || "",
+    exchange: card.querySelector(".exchange")?.value || "",
+    currency: card.querySelector(".currency")?.value || "ILS",
+    exposure_profile: card.querySelector(".exposure_profile")?.value || "",
+    fx_rate: Number(card.querySelector(".fx_rate")?.value) || 1,
+    quantity: Number(card.querySelector(".quantity")?.value) || 0,
+    current_price: Number(card.querySelector(".current_price")?.value) || 0,
+    avg_buy_price: Number(card.querySelector(".avg_buy_price")?.value) || 0,
+    current_value: Number(card.querySelector(".current_value")?.value) || 0,
+    cost_basis: Number(card.querySelector(".cost_basis")?.value) || 0,
+    daily_change_percent: Number(card.querySelector(".daily_change_percent")?.value) || 0,
+    daily_change_value: Number(card.querySelector(".daily_change_value")?.value) || 0,
+    classification: card.querySelector(".classification")?.value || "",
+    equity_exposure: Number(card.querySelector(".equity_exposure")?.value) || 0,
+    fx_exposure: Number(card.querySelector(".fx_exposure")?.value) || 0,
+    std_dev_12m: Number(card.querySelector(".std_dev_12m")?.value) || 0,
+    sharpe_ratio: Number(card.querySelector(".sharpe_ratio")?.value) || 0,
+    return_12m: Number(card.querySelector(".return_12m")?.value) || 0,
+    return_3y: Number(card.querySelector(".return_3y")?.value) || 0,
+    management_fee: Number(card.querySelector(".management_fee")?.value) || 0
+  };
+}
+
+function createAssetForm(asset = {}) {
+  const wrapper = document.createElement("div");
+  wrapper.className = "asset-card";
+
+  wrapper.innerHTML = `
+    <div class="grid">
+      <div>
+        <label title="השם של הנכס, כמו שהוא מוכר לך בתיק ההשקעות">שם נכס</label>
+        <input class="asset_name" type="text" value="${asset.asset_name || ""}">
+        <div class="field-help">למשל: MTF מחקה S&P500</div>
+      </div>
+
+      <div>
+        <label title="בחר את סוג הנכס כדי שהמערכת תדע איך להתייחס אליו בניתוח">סוג נכס</label>
+        <select class="asset_type">
+          <option value="mutual_fund" ${asset.asset_type === "mutual_fund" ? "selected" : ""}>קרן נאמנות</option>
+          <option value="bond_fund" ${asset.asset_type === "bond_fund" ? "selected" : ""}>קרן אג"ח</option>
+          <option value="stock" ${asset.asset_type === "stock" ? "selected" : ""}>מניה</option>
+          <option value="etf" ${asset.asset_type === "etf" ? "selected" : ""}>ETF</option>
+          <option value="cash" ${asset.asset_type === "cash" ? "selected" : ""}>מזומן</option>
+          <option value="other" ${asset.asset_type === "other" ? "selected" : ""}>אחר</option>
+        </select>
+        <div class="field-help">בחירת הסוג תעדכן ברירות מחדל חכמות</div>
+      </div>
+
+      <div>
+        <label title="מספר הזיהוי של נייר הערך, אם יש">מספר נייר</label>
+        <input class="security_number" type="text" value="${asset.security_number || ""}">
+      </div>
+
+      <div>
+        <label title="הבורסה שבה הנכס נסחר, למשל TASE או NASDAQ">בורסה</label>
+        <input class="exchange" type="text" value="${asset.exchange || "TASE"}">
+      </div>
+
+      <div>
+        <label title="המטבע שבו הנכס מתומחר, למשל שקל או דולר">מטבע</label>
+        <select class="currency">
+          <option value="ILS" ${(asset.currency || "ILS") === "ILS" ? "selected" : ""}>ILS</option>
+          <option value="USD" ${asset.currency === "USD" ? "selected" : ""}>USD</option>
+          <option value="EUR" ${asset.currency === "EUR" ? "selected" : ""}>EUR</option>
+        </select>
+      </div>
+<div>
+  <label title="פרופיל חשיפה לפי המקרא, למשל 4D">פרופיל חשיפה</label>
+  <input class="exposure_profile" type="text" value="${asset.exposure_profile || ""}" placeholder="למשל: 4D">
+  <div class="field-help">לדוגמה: 4D, 2B, 0A</div>
+</div>
+      <div>
+        <label title="השער שבו האפליקציה ממירה את המטבע של הנכס לשקלים">שער המרה ל-ILS</label>
+        <input class="fx_rate" type="number" step="any" value="${asset.fx_rate || 1}" readonly>
+      </div>
+
+      <div>
+        <la<label title="כמה יחידות מהנכס יש לך בפועל">כמות</label>
+        <input class="quantity" type="number" step="any" value="${asset.quantity || 0}">
+      </div>
+
+      <div>
+        <label title="המחיר האחרון של יחידה אחת מהנכס">מחיר נוכחי</label>
+        <input class="current_price" type="number" step="any" value="${asset.current_price || 0}">
+      </div>
+
+      <div>
+        <label title="המחיר הממוצע שבו קנית את הנכס">מחיר קנייה ממוצע</label>
+        <input class="avg_buy_price" type="number" step="any" value="${asset.avg_buy_price || 0}">
+      </div>
+
+      <div>
+        <label title="השווי העדכני של האחזקה לפי כמות, מחיר נוכחי ושער המרה">שווי נוכחי</label>
+        <input class="current_value" type="number" step="any" value="${asset.current_value || 0}" readonly>
+        <div class="field-help">מחושב אוטומטית: כמות × מחיר נוכחי × שער המרה</div>
+      </div>
+
+      <div>
+        <label title="כמה כסף הושקע בפועל ברכישת הנכס">בסיס עלות</label>
+        <input class="cost_basis" type="number" step="any" value="${asset.cost_basis || 0}" readonly>
+        <div class="field-help">מחושב אוטומטית: כמות × מחיר קנייה ממוצע × שער המרה</div>
+      </div>
+    </div>
+
+    <div class="toggle-advanced">
+      <button class="secondary toggle-advanced-btn" type="button">הצג נתונים מתקדמים</button>
+    </div>
+
+    <div class="advanced-fields hidden">
+      <div class="grid">
+        <div>
+          <label>סיווג פנימי</label>
+          <input class="classification" type="hidden" value="${asset.classification || ""}">
+          <div class="field-help">למשל: index_fund, bond_fund</div>
+        </div>
+
+        <div>
+        <label title="כמה כסף הושקע בפועל ברכישת הנכס">בסיס עלות</label>
+        <input class="equity_exposure" type="number" step="any" value="${((asset.equity_exposure || 0) * 100).toFixed(2)}">
+        <div class="field-help">הכנס אחוז. למשל: 30 = 30%</div>
+        </div>
+
+        <div>
+        <label title="איזה חלק מהנכס חשוף למטבע זר">חשיפה למט"ח (%)</label>
+        <input class="fx_exposure" type="number" step="any" value="${((asset.fx_exposure || 0) * 100).toFixed(2)}">
+        <div class="field-help">הכנס אחוז. למשל: 15 = 15%</div>
+        </div>
+
+        <div>
+          <label title="מדד שמראה עד כמה הנכס נוטה לזוז למעלה ולמטה">סטיית תקן 12 חודשים</label>
+          <input class="std_dev_12m" type="number" step="any" value="${asset.std_dev_12m || 0}">
+        </div>
+
+        <div>
+          <label title="מדד שבודק תשואה ביחס לרמת הסיכון של הנכס">מדד שארפ</label>
+          <input class="sharpe_ratio" type="number" step="any" value="${asset.sharpe_ratio || 0}">
+        </div>
+
+        <div>
+        <label title="התשואה של הנכס בשנה האחרונה">תשואה 12 חודשים (%)</label>
+        <input class="return_12m" type="number" step="any" value="${((asset.return_12m || 0) * 100).toFixed(2)}">
+        </div>
+
+        <div>
+        <label title="התשואה המצטברת של הנכס ב-3 השנים האחרונות">תשואה 3 שנים (%)</label>
+        <input class="return_3y" type="number" step="any" value="${((asset.return_3y || 0) * 100).toFixed(2)}">
+        </div>
+
+        <div>
+        <label title="העלות השנתית של ניהול הנכס באחוזים">דמי ניהול (%)</label>
+        <input class="management_fee" type="number" step="any" value="${((asset.management_fee || 0) * 100).toFixed(2)}">
+        </div>
+      </div>
+    </div>
+     `;
+
+  const quantityInput = wrapper.querySelector(".quantity");
+  const currentPriceInput = wrapper.querySelector(".current_price");
+  const avgBuyPriceInput = wrapper.querySelector(".avg_buy_price");
+  const currentValueInput = wrapper.querySelector(".current_value");
+  const costBasisInput = wrapper.querySelector(".cost_basis");
+  const currencyInput = wrapper.querySelector(".currency");
+  const fxRateInput = wrapper.querySelector(".fx_rate");
+  const assetTypeInput = wrapper.querySelector(".asset_type");
+  const classificationInput = wrapper.querySelector(".classification");
+  const exposureProfileInput = wrapper.querySelector(".exposure_profile");
+  const equityExposureInput = wrapper.querySelector(".equity_exposure");
+  const fxExposureInput = wrapper.querySelector(".fx_exposure");
+
+  function updateExposureFromProfile() {
+    if (!exposureProfileInput) return;
+
+    const parsed = parseExposureProfile(exposureProfileInput.value);
+
+    if (parsed.equityExposure !== null && equityExposureInput) {
+    equityExposureInput.value = parsed.equityExposure;
+    }
+
+    if (parsed.fxExposure !== null && fxExposureInput) {
+      fxExposureInput.value = parsed.fxExposure;
+    }
+
+    updatePortfolioDashboard();
+  }
+
+  function recalculateAssetValues() {
+    const quantity = Number(quantityInput.value) || 0;
+    const currentPriceRaw = Number(currentPriceInput.value) || 0;
+    const avgBuyPriceRaw = Number(avgBuyPriceInput.value) || 0;
+    const fxRate = Number(fxRateInput.value) || 1;
+
+    let currentPrice = currentPriceRaw;
+    let avgBuyPrice = avgBuyPriceRaw;
+
+    if ((currencyInput.value || "ILS").toUpperCase() === "ILS") {
+      currentPrice = currentPriceRaw / 100;
+      avgBuyPrice = avgBuyPriceRaw / 100;
+    }
+
+    const currentValue = Number((quantity * currentPrice * fxRate).toFixed(2));
+    const costBasis = Number((quantity * avgBuyPrice * fxRate).toFixed(2));
+
+    currentValueInput.value = currentValue;
+    costBasisInput.value = costBasis;
+
+    updatePortfolioDashboard();
+    updatePortfolioAllocation();
+    renderAssetSummaryList();
+    saveCurrentPortfolioAssets();
+
+  }
+
+    function updateClassificationFromAssetType() {
+      classificationInput.value = getClassificationByAssetType(assetTypeInput.value);
+    }
+
+  async function updateFxRate() {
+    try {
+      const rate = await fetchFxRate(currencyInput.value);
+      fxRateInput.value = rate;
+      recalculateAssetValues();
+    } catch (error) {
+      fxRateInput.value = 1;
+      console.error("שגיאה בקבלת שער המרה:", error);
+    }
+  }
+
+  quantityInput.addEventListener("input", recalculateAssetValues);
+  currentPriceInput.addEventListener("input", recalculateAssetValues);
+  avgBuyPriceInput.addEventListener("input", recalculateAssetValues);
+  currencyInput.addEventListener("change", updateFxRate);
+  assetTypeInput.addEventListener("change", updateClassificationFromAssetType);
+  if (exposureProfileInput) {
+    exposureProfileInput.addEventListener("input", updateExposureFromProfile);
+  }
+
+
+  updateFxRate();
+  updateClassificationFromAssetType();
+  updateExposureFromProfile();
+  recalculateAssetValues();
+  applyAssetTypeBehavior(wrapper);
+  updatePortfolioDashboard();
+
+  const toggleButton = wrapper.querySelector(".toggle-advanced-btn");
+  const advancedFields = wrapper.querySelector(".advanced-fields");
+
+  toggleButton.addEventListener("click", () => {
+    advancedFields.classList.toggle("hidden");
+    toggleButton.textContent = advancedFields.classList.contains("hidden")
+      ? "הצג נתונים מתקדמים"
+      : "הסתר נתונים מתקדמים";
+  });
+
+    updatePortfolioAllocation();
+  return wrapper;
+}
+
+    async function fetchFxRate(currency) {
+  const normalized = (currency || "ILS").toUpperCase();
+
+  if (normalized === "ILS") {
+    return 1;
+  }
+
+  const response = await fetch(`${API_BASE_URL}/fx-rate?currency=${encodeURIComponent(normalized)}`);
+  if (!response.ok) {
+    throw new Error("נכשל בקבלת שער המרה");
+  }
+
+  const data = await response.json();
+  return Number(data.rate || 1);
+}
+
+     function addAssetForm(asset = {}) {
+      const defaultAsset = {
+        asset_name: "",
+        asset_type: "mutual_fund",
+        security_number: "",
+        exchange: "TASE",
+        currency: "ILS",
+        fx_rate: 1,
+        classification: "",
+        quantity: 0,
+        current_price: 0,
+        current_value: 0,
+        avg_buy_price: 0,
+        cost_basis: 0,
+        equity_exposure: 0,
+        fx_exposure: 0,
+        std_dev_12m: 0,
+        sharpe_ratio: 0,
+        return_12m: 0,
+        return_3y: 0,
+        management_fee: 0
+      };
+
+      const mergedAsset = { ...defaultAsset, ...asset };
+      const container = document.getElementById("assets-container");
+      container.appendChild(createAssetForm(mergedAsset));
+    }
+
+    function parseBool(value) {
+      return value === "true";
+    }
+
+        function collectAssets() {
+      const cards = document.querySelectorAll(".asset-card");
+      const assets = [];
+
+      for (const card of cards) {
+        const assetName = card.querySelector(".asset_name").value.trim();
+        const assetType = card.querySelector(".asset_type").value.trim();
+        const securityNumber = card.querySelector(".security_number").value.trim();
+        const exchange = card.querySelector(".exchange").value.trim();
+        const currency = card.querySelector(".currency").value.trim();
+        const classification = card.querySelector(".classification").value.trim();
+
+        const quantity = Number(card.querySelector(".quantity").value);
+        const currentPrice = Number(card.querySelector(".current_price").value)/100;
+        const currentValue = Number(card.querySelector(".current_value").value)/100;
+        const avgBuyPrice = Number(card.querySelector(".avg_buy_price").value);
+        const costBasis = Number(card.querySelector(".cost_basis").value);
+
+
+        const equityExposure = (Number(card.querySelector(".equity_exposure").value) || 0) / 100;
+        const fxExposure = (Number(card.querySelector(".fx_exposure").value) || 0) / 100;
+        const stdDev12m = Number(card.querySelector(".std_dev_12m").value || 0);
+        const sharpeRatio = Number(card.querySelector(".sharpe_ratio").value || 0);
+        const return12m = (Number(card.querySelector(".return_12m").value) || 0) / 100;
+        const return3y = (Number(card.querySelector(".return_3y").value) || 0) / 100;
+        const managementFee = (Number(card.querySelector(".management_fee").value) || 0) / 100;
+
+        if (!assetName) {
+          throw new Error("חסר שם נכס באחד הנכסים.");
+        }
+
+        if (!assetType) {
+          throw new Error(`חסר סוג נכס עבור ${assetName}.`);
+        }
+
+        if (quantity < 0 || currentPrice < 0 || avgBuyPrice < 0) {
+          throw new Error(`יש ערך שלילי באחד השדות עבור ${assetName}.`);
+        }
+
+        if (assetType === "cash" && equityExposure > 0) {
+          throw new Error(`נכס מסוג מזומן לא אמור להכיל חשיפה מנייתית עבור ${assetName}.`);
+        }
+
+        assets.push({
+          position: {
+            quantity: quantity,
+            current_price: currentPrice,
+            current_value: currentValue,
+            avg_buy_price: avgBuyPrice,
+            cost_basis: costBasis
+          },
+          instrument: {
+            asset_name: assetName,
+            asset_type: assetType,
+            security_number: securityNumber,
+            exchange: exchange,
+            currency: currency,
+            classification: classification
+          },
+          analytics: {
+            equity_exposure: equityExposure,
+            fx_exposure: fxExposure,
+            std_dev_12m: stdDev12m,
+            sharpe_ratio: sharpeRatio,
+            return_12m: return12m,
+            return_3y: return3y,
+            management_fee: managementFee
+          }
+        });
+      }
+
+      if (assets.length === 0) {
+        throw new Error("יש להוסיף לפחות נכס אחד לתיק.");
+      }
+
+      return assets;
+    }
+
+function getClassificationByAssetType(assetType) {
+  switch (assetType) {
+    case "mutual_fund":
+      return "mutual_fund";
+    case "bond_fund":
+      return "bond_fund";
+    case "stock":
+      return "stock";
+    case "etf":
+      return "etf";
+    case "cash":
+      return "cash";
+    case "other":
+      return "other";
+    default:
+      return "other";
+  }
+}
+
+    function renderPortfolioSummary(data) {
+      const summary = data.current_allocation ? data : data.portfolio_summary;
+      const target = data.target_allocation || {};
+      const current = data.current_allocation || summary.current_allocation || {};
+
+      document.getElementById("portfolio-summary").innerHTML = `
+        <div class="metric"><strong>שווי תיק:</strong> ${summary.total_value ?? "—"} ${summary.base_currency ?? "ILS"}</div>
+        <div class="metric"><strong>רמת סיכון:</strong> ${summary.risk_level ?? "—"}</div>
+        <div class="metric"><strong>טווח השקעה:</strong> ${summary.investment_horizon_years ?? "—"} שנים</div>
+        <div class="metric"><strong>כסף חדש:</strong> ${summary.monthly_new_cash ?? "—"} ${summary.base_currency ?? "ILS"}</div>
+        <div class="metric"><strong>חשיפה מנייתית:</strong> ${formatPercent(summary.total_equity_exposure)}</div>
+        <div class="metric"><strong>חשיפה למט"ח:</strong> ${formatPercent(summary.total_fx_exposure)}</div>
+        <div class="metric"><strong>הקצאה נוכחית:</strong> ${allocationToHtml(current)}</div>
+        <div class="metric"><strong>הקצאת יעד:</strong> ${allocationToHtml(target)}</div>
+      `;
+    }
+
+    function renderRiskSummary(riskReport) {
+      const metrics = riskReport.metrics || {};
+      document.getElementById("risk-summary").innerHTML = `
+        <div class="metric"><strong>ציון סיכון:</strong> ${riskReport.overall_risk_score ?? "—"}</div>
+        <div class="metric"><strong>רמת סיכון כוללת:</strong> <span class="tag">${riskReport.overall_risk_label ?? "—"}</span></div>
+        <div class="metric"><strong>חשיפה מנייתית:</strong> ${formatPercent(metrics.equity_exposure)}</div>
+        <div class="metric"><strong>חשיפה למט"ח:</strong> ${formatPercent(metrics.fx_exposure)}</div>
+        <div class="metric"><strong>סטיית תקן משוקללת:</strong> ${formatPercent(metrics.weighted_std_dev)}</div>
+        <div class="metric"><strong>שארפ משוקלל:</strong> ${formatNumber(metrics.weighted_sharpe)}</div>
+        <div class="metric"><strong>יחס מזומן:</strong> ${formatPercent(metrics.cash_ratio)}</div>
+        <div class="metric"><strong>הנכס הגדול בתיק:</strong> ${formatPercent(metrics.largest_position_weight)}</div>
+      `;
+    }
+
+    function renderBuyRecommendations(recommendations, newCashRecommendation) {
+      const container = document.getElementById("buy-recommendations");
+      container.innerHTML = "";
+
+      if (newCashRecommendation) {
+        const allocationCard = document.createElement("div");
+        allocationCard.className = "result-card recommendation-buy";
+        allocationCard.innerHTML = `
+          <h3>חלוקת כסף חדש</h3>
+          <div class="metric">${allocationToHtml(newCashRecommendation)}</div>
+        `;
+        container.appendChild(allocationCard);
+      }
+
+      if (!recommendations || recommendations.length === 0) {
+        container.innerHTML += `<div class="muted">אין כרגע המלצות קנייה.</div>`;
+        return;
+      }
+
+      recommendations.forEach(rec => {
+        const card = document.createElement("div");
+        card.className = "result-card recommendation-buy";
+        card.innerHTML = `
+          <div><strong>פעולה:</strong> ${rec.action}</div>
+          <div><strong>קטגוריה:</strong> ${rec.category}</div>
+          <div><strong>נכס:</strong> ${rec.asset_name ?? "יש להוסיף נכס חדש"}</div>
+          <div><strong>סכום:</strong> ${formatMoney(rec.amount)}</div>
+          <div><strong>ציון:</strong> ${rec.score ?? "—"}</div>
+          <div><strong>קנס חפיפה:</strong> ${rec.overlap_penalty ?? 0}</div>
+          <div><strong>קנס פיזור מדומה:</strong> ${rec.diversification_penalty ?? 0}</div>
+          <div><strong>קנס איכות נתונים:</strong> ${rec.data_quality_penalty ?? 0}</div>    
+          <div><strong>רמת ביטחון:</strong> ${rec.confidence_label ?? "—"} (${rec.confidence_score ?? "—"})</div>
+          <div class="muted">${rec.reason}</div>
+          <div style="margin-top:8px;"><strong>הסבר קצר:</strong> ${rec.explanation_text ?? "—"}</div>
+          <div style="margin-top:8px;"><strong>למה רמת הביטחון כזו:</strong> ${rec.confidence_reason ?? "—"}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderHoldReduceRecommendations(recommendations) {
+      const container = document.getElementById("hold-reduce-recommendations");
+      container.innerHTML = "";
+
+      if (!recommendations || recommendations.length === 0) {
+        container.innerHTML = `<div class="muted">אין כרגע המלצות hold/reduce.</div>`;
+        return;
+      }
+
+      recommendations.forEach(rec => {
+        const className =
+          rec.action === "reduce"
+            ? "recommendation-reduce"
+            : "recommendation-hold";
+
+        const card = document.createElement("div");
+        card.className = `result-card ${className}`;
+        card.innerHTML = `
+          <div><strong>פעולה:</strong> ${rec.action}</div>
+          <div><strong>קטגוריה:</strong> ${rec.category}</div>
+          <div><strong>נכס:</strong> ${rec.asset_name ?? "—"}</div>
+          <div><strong>סכום לצמצום:</strong> ${rec.amount ? formatMoney(rec.amount) : "—"}</div>
+          <div><strong>ציון:</strong> ${rec.score ?? "—"}</div>
+          <div><strong>קנס חפיפה:</strong> ${rec.overlap_penalty ?? 0}</div>
+          <div><strong>קנס פיזור מדומה:</strong> ${rec.diversification_penalty ?? 0}</div>
+          <div><strong>קנס איכות נתונים:</strong> ${rec.data_quality_penalty ?? 0}</div>          
+          <div><strong>רמת ביטחון:</strong> ${rec.confidence_label ?? "—"} (${rec.confidence_score ?? "—"})</div>
+          <div class="muted">${rec.reason}</div>
+          <div style="margin-top:8px;"><strong>הסבר קצר:</strong> ${rec.explanation_text ?? "—"}</div>
+          <div style="margin-top:8px;"><strong>למה רמת הביטחון כזו:</strong> ${rec.confidence_reason ?? "—"}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function renderWarnings(warnings) {
+      const container = document.getElementById("warnings");
+      container.innerHTML = "";
+
+      if (!warnings || warnings.length === 0) {
+        container.innerHTML = `<div class="muted">אין אזהרות מיוחדות.</div>`;
+        return;
+      }
+
+      warnings.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "warning";
+        el.textContent = item;
+        container.appendChild(el);
+      });
+    }
+
+    function renderStrengths(strengths) {
+      const container = document.getElementById("strengths");
+      container.innerHTML = "";
+
+      if (!strengths || strengths.length === 0) {
+        container.innerHTML = `<div class="muted">אין נקודות חוזק מיוחדות.</div>`;
+        return;
+      }
+
+      strengths.forEach(item => {
+        const el = document.createElement("div");
+        el.className = "strength";
+        el.textContent = item;
+        container.appendChild(el);
+      });
+    }
+
+    function renderOverlaps(overlaps) {
+      const container = document.getElementById("overlaps");
+      container.innerHTML = "";
+
+      if (!overlaps || overlaps.length === 0) {
+        container.innerHTML = `<div class="muted">לא זוהו חפיפות בולטות בין נכסים בתיק.</div>`;
+        return;
+      }
+
+      overlaps.forEach(item => {
+        const borderClass =
+          item.severity === "high"
+            ? "recommendation-reduce"
+            : item.severity === "medium"
+              ? "recommendation-buy"
+              : "recommendation-hold";
+
+        const card = document.createElement("div");
+        card.className = `result-card ${borderClass}`;
+        card.innerHTML = `
+          <div><strong>נכס 1:</strong> ${item.asset_1}</div>
+          <div><strong>נכס 2:</strong> ${item.asset_2}</div>
+          <div><strong>רמת חומרה:</strong> ${item.severity}</div>
+          <div><strong>ציון חפיפה:</strong> ${item.score}</div>
+          <div><strong>פער חשיפה מנייתית:</strong> ${formatPercent(item.equity_gap)}</div>
+          <div><strong>פער חשיפה למט"ח:</strong> ${formatPercent(item.fx_gap)}</div>
+          <div class="muted">${item.explanation}</div>
+        `;
+        container.appendChild(card);
+      });
+    }
+    
+    function allocationToHtml(obj) {
+      if (!obj) return "—";
+      return Object.entries(obj)
+        .map(([key, value]) => `<span class="tag">${key}: ${formatPercent(value)}</span>`)
+        .join(" ");
+    }
+
+    function formatPercent(value) {
+      if (value === undefined || value === null || Number.isNaN(value)) return "—";
+      return `${(value * 100).toFixed(2)}%`;
+    }
+
+    function formatMoney(value) {
+      if (value === undefined || value === null || Number.isNaN(value)) return "—";
+      return `${Number(value).toLocaleString()} ILS`;
+    }
+
+    function formatNumber(value) {
+      if (value === undefined || value === null || Number.isNaN(value)) return "—";
+      return Number(value).toFixed(2);
+    }
+
+    function formatPreviewValue(value) {
+      if (value === undefined || value === null || value === "") {
+        return "—";
+      }
+
+      if (typeof value === "number") {
+        return Number(value).toLocaleString();
+      }
+
+      return escapeHtml(String(value));
+    }
+
+        async function submitPortfolio() {
+         const messageBox = document.getElementById("message-box");
+         messageBox.innerHTML = "";
+
+         try {
+         const payload = {
+          assets: collectAssets(),
+          investor: collectInvestorProfile()
+        };
+
+         const response = await fetch(`${API_BASE_URL}/recommend`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify(payload)
+         });
+
+         const data = await response.json();
+
+         if (!response.ok) {
+          throw new Error("השרת החזיר שגיאה בעיבוד הנתונים.");
+         }
+         lastAnalysisPayload = payload;
+         lastAnalysisResult = data;
+
+
+         messageBox.innerHTML = `<div class="success-box">הניתוח הושלם בהצלחה.</div>`;
+
+         renderFullAnalysisResult(data, payload);
+         document.getElementById("free-cash-section")?.classList.remove("hidden");        
+       } catch (error) {
+         document.getElementById("dashboard").classList.remove("hidden");
+         messageBox.innerHTML = `<div class="error-box">${error.message}</div>`;
+      }
+    }
+    refreshMappingTemplateSelect();
+    refreshSavedPortfoliosSelect();
+    refreshAnalysisHistorySelect();
+    fillExampleData();
+
+    const openAddAssetModalBtn = document.getElementById("open-add-asset-modal-btn");
+const closeAssetModalBtn = document.getElementById("close-asset-modal-btn");
+const confirmAddAssetBtn = document.getElementById("confirm-add-asset-btn");
+const closeAssetDetailsModalBtn = document.getElementById("close-asset-details-modal-btn");
+const closeAssetDetailsBtn = document.getElementById("close-asset-details-btn");
+
+if (openAddAssetModalBtn) {
+  openAddAssetModalBtn.addEventListener("click", () => {
+   const modalBody = document.getElementById("asset-form-modal-body");
+   const modalTitle = document.querySelector("#asset-modal .modal-header h3");
+   const confirmButton = document.getElementById("confirm-add-asset-btn");
+
+   if (!modalBody) return;
+
+   currentEditingAssetCard = null;
+   currentDraftAssetCard = createAssetForm({});
+
+   modalBody.innerHTML = "";
+   modalBody.appendChild(currentDraftAssetCard);
+
+   if (modalTitle) {
+     modalTitle.textContent = "הוספת נכס";
+   }
+
+   if (confirmButton) {
+  confirmButton.textContent = "הזן נכס";
+   }
+
+   openModal("asset-modal");
+  });
+}
+
+if (closeAssetModalBtn) {
+  closeAssetModalBtn.addEventListener("click", () => {
+    closeModal("asset-modal");
+    currentDraftAssetCard = null;
+    currentEditingAssetCard = null;
+  });
+}
+
+if (confirmAddAssetBtn) {
+  confirmAddAssetBtn.addEventListener("click", () => {
+    if (!currentDraftAssetCard) return;
+
+    const assetsContainer = document.getElementById("assets-container");
+    const modalTitle = document.querySelector("#asset-modal .modal-header h3");
+
+    if (!assetsContainer) return;
+
+    if (currentEditingAssetCard) {
+      currentEditingAssetCard.replaceWith(currentDraftAssetCard);
+    } else {
+      assetsContainer.appendChild(currentDraftAssetCard);
+    }
+
+    currentDraftAssetCard = null;
+    currentEditingAssetCard = null;
+
+    if (modalTitle) {
+      modalTitle.textContent = "הוספת נכס";
+    }
+
+    confirmAddAssetBtn.textContent = "הזן נכס";
+
+    closeModal("asset-modal");
+    updatePortfolioDashboard();
+    updatePortfolioAllocation();
+    renderAssetSummaryList();
+    saveCurrentPortfolioAssets();
+    addPortfolioHistorySnapshot(true);
+    renderPortfolioHistoryChart();
+  });
+}
+
+if (closeAssetDetailsModalBtn) {
+  closeAssetDetailsModalBtn.addEventListener("click", () => {
+    closeModal("asset-details-modal");
+  });
+}
+
+if (closeAssetDetailsBtn) {
+  closeAssetDetailsBtn.addEventListener("click", () => {
+    closeModal("asset-details-modal");
+  });
+}
+
+requireAuth().then(isAuthenticated => {
+  if (!isAuthenticated) return;
+// חשוב מאוד – כדי לטעון רשימה אם כבר יש נכסים
+  renderAssetSummaryList();
+  renderActiveProfileBanner();
+  initializeAssetsFromStorage();
+  bindPortfolioHistoryRangeButtons();
+  addPortfolioHistorySnapshot();
+  renderPortfolioHistoryChart();
+});
+
+const savePortfolioChangesBtn = document.getElementById("save-portfolio-changes-btn");
+
+if (savePortfolioChangesBtn) {
+  savePortfolioChangesBtn.addEventListener("click", () => {
+    saveCurrentPortfolioAssets();
+    addPortfolioHistorySnapshot(true);
+    renderPortfolioHistoryChart();
+    alert("השינויים נשמרו");
+  });
+}
+
+const updatePricesBtn = document.getElementById("update-prices-btn");
+
+if (updatePricesBtn) {
+  updatePricesBtn.addEventListener("click", async () => {
+    updatePricesBtn.disabled = true;
+    updatePricesBtn.textContent = "מעדכן...";
+
+    try {
+      await updateAllAssetsFromMarketData();
+      alert("השערים עודכנו");
+    } catch (error) {
+      console.error("שגיאה בעדכון שערים:", error);
+      alert("אירעה שגיאה בעדכון השערים");
+    } finally {
+      updatePricesBtn.disabled = false;
+      updatePricesBtn.textContent = "עדכן שערים";
+    }
+  });
+}
+
+function getAuthToken() {
+  return localStorage.getItem("portfolio_auth_token") || "";
+}
+
+function getAuthenticatedUser() {
+  try {
+    return JSON.parse(localStorage.getItem("portfolio_auth_user") || "null");
+  } catch (error) {
+    return null;
+  }
+}
+
+function clearAuthenticatedUser() {
+  localStorage.removeItem("portfolio_auth_token");
+  localStorage.removeItem("portfolio_auth_user");
+}
+
+async function requireAuth() {
+  const token = getAuthToken();
+
+  if (!token) {
+    window.location.href = "login.html";
+    return false;
+  }
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
+    const data = await response.json();
+
+    if (!response.ok || !data.authenticated) {
+      clearAuthenticatedUser();
+      window.location.href = "login.html";
+      return false;
+    }
+
+    return true;
+  } catch (error) {
+    clearAuthenticatedUser();
+    window.location.href = "login.html";
+    return false;
+  }
+}
+
+  </script>
+</body>
+</html>

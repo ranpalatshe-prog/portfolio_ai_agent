@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="he">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>בניית פרופיל השקעה</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      direction: rtl;
+      background: linear-gradient(135deg, #f8fafc, #e2e8f0);
+      color: #111827;
+    }
+
+    .container {
+      max-width: 920px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+
+    .card {
+      background: #ffffff;
+      border-radius: 24px;
+      padding: 28px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+      border: 1px solid #e5e7eb;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    h1, h2, h3, p {
+      margin-top: 0;
+    }
+
+    .top-note {
+      text-align: center;
+      margin-bottom: 20px;
+      color: #475569;
+      font-size: 14px;
+    }
+
+    .progress {
+      text-align: center;
+      font-size: 14px;
+      color: #475569;
+      margin-bottom: 12px;
+    }
+
+    .progress-bar-wrap {
+      width: 100%;
+      height: 10px;
+      background: #e5e7eb;
+      border-radius: 999px;
+      overflow: hidden;
+      margin-bottom: 24px;
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0%;
+      background: #2563eb;
+      transition: width 0.25s ease;
+    }
+
+    .question-title {
+      font-size: 28px;
+      margin-bottom: 24px;
+      line-height: 1.5;
+      text-align: center;
+    }
+
+    .answers {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .answer-btn {
+      width: 100%;
+      text-align: right;
+      padding: 16px 18px;
+      border: 1px solid #cbd5e1;
+      border-radius: 16px;
+      background: #f8fafc;
+      cursor: pointer;
+      font-size: 16px;
+      line-height: 1.5;
+      transition: all 0.15s ease;
+    }
+
+    .answer-btn:hover {
+      background: #eef2ff;
+      border-color: #2563eb;
+    }
+
+    .answer-btn.selected {
+      background: #dbeafe;
+      border-color: #2563eb;
+      font-weight: 700;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 24px;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: opacity 0.15s ease;
+    }
+
+    .btn:hover {
+      opacity: 0.92;
+    }
+
+    .btn-primary {
+      background: #2563eb;
+      color: white;
+      flex: 1;
+    }
+
+    .btn-secondary {
+      background: #e5e7eb;
+      color: #111827;
+    }
+
+    .btn-outline {
+      background: white;
+      color: #2563eb;
+      border: 1px solid #2563eb;
+    }
+
+    .section-title {
+      font-size: 30px;
+      text-align: center;
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      text-align: center;
+      color: #475569;
+      margin-bottom: 28px;
+      line-height: 1.6;
+    }
+
+    .track-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .track-card {
+      border: 1px solid #cbd5e1;
+      border-radius: 18px;
+      padding: 18px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      min-height: 120px;
+    }
+
+    .track-card:hover {
+      border-color: #0f766e;
+      background: #f0fdfa;
+    }
+
+    .track-card.selected {
+      border-color: #0f766e;
+      background: #ccfbf1;
+      box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.08);
+    }
+
+    .track-name {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f766e;
+      margin-bottom: 10px;
+    }
+
+    .track-desc {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+      margin-top: 24px;
+    }
+
+    .summary-box {
+      border: 1px solid #e5e7eb;
+      border-radius: 18px;
+      padding: 18px;
+      background: #f8fafc;
+    }
+
+    .summary-label {
+      font-size: 14px;
+      color: #64748b;
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: 22px;
+      font-weight: 700;
+      line-height: 1.5;
+    }
+
+    .summary-answer-list {
+      margin: 0;
+      padding-right: 18px;
+      line-height: 1.8;
+      color: #334155;
+    }
+
+    .risk-badge {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .risk-low {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .risk-medium {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
+    .risk-high {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    @media (max-width: 700px) {
+      .question-title,
+      .section-title {
+        font-size: 24px;
+      }
+
+      .track-grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="top-note">בניית פרופיל השקעה חדש</div>
+
+    <div id="question-step" class="card">
+      <div class="progress" id="progress-text"></div>
+      <div class="progress-bar-wrap">
+        <div class="progress-bar" id="progress-bar"></div>
+      </div>
+
+      <h1 class="question-title" id="question-title"></h1>
+      <div class="answers" id="answers"></div>
+
+      <div class="actions">
+        <button id="back-question-btn" class="btn btn-secondary hidden" type="button">חזרה</button>
+        <button id="next-question-btn" class="btn btn-primary hidden" type="button">המשך</button>
+      </div>
+    </div>
+
+    <div id="track-step" class="card hidden">
+      <h2 class="section-title">בחר מסלול השקעה מועדף</h2>
+      <p class="section-subtitle">
+        בהתאם לתשובות שלך, תוכל לבחור את אפיק ההשקעה שהכי מתאים לך כרגע.
+      </p>
+
+      <div class="track-grid" id="track-grid"></div>
+
+      <div class="actions">
+        <button id="back-to-questions-btn" class="btn btn-secondary" type="button">חזרה לשאלות</button>
+        <button id="to-summary-btn" class="btn btn-primary hidden" type="button">המשך לסיכום</button>
+      </div>
+    </div>
+
+    <div id="summary-step" class="card hidden">
+      <h2 class="section-title">סיכום הפרופיל שלך</h2>
+      <p class="section-subtitle">
+        זהו הפרופיל שנבנה לפי התשובות שלך והמסלול שבחרת. אפשר לחזור אחורה ולשנות, או לאשר ולהמשיך לאפליקציה.
+      </p>
+
+      <div class="summary-box" style="margin-bottom: 20px;">
+  <div class="summary-label">שם תיק ההשקעות</div>
+  <input
+    id="portfolio-name-input"
+    type="text"
+    placeholder="לדוגמה: התיק שלי"
+    style="
+      width: 100%;
+      box-sizing: border-box;
+      padding: 14px;
+      border: 1px solid #cbd5e1;
+      border-radius: 14px;
+      font-size: 16px;
+    "
+  />
+</div>
+
+      <div class="summary-grid">
+        <div class="summary-box">
+          <div class="summary-label">רמת סיכון משוערת</div>
+          <div class="summary-value" id="summary-risk"></div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-label">מסלול שנבחר</div>
+          <div class="summary-value" id="summary-track"></div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-label">המלצת חשיפה מנייתית התחלתית</div>
+          <div class="summary-value" id="summary-equity"></div>
+        </div>
+
+        <div class="summary-box">
+          <div class="summary-label">טווח השקעה</div>
+          <div class="summary-value" id="summary-horizon"></div>
+        </div>
+
+        <div class="summary-box" style="grid-column: 1 / -1;">
+          <div class="summary-label">התשובות שלך</div>
+          <ol class="summary-answer-list" id="summary-answers"></ol>
+        </div>
+      </div>
+
+      <div class="actions">
+        <button id="back-to-tracks-btn" class="btn btn-secondary" type="button">חזרה</button>
+        <button id="approve-profile-btn" class="btn btn-primary" type="button">אישור והמשך לאפליקציה</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        id: "time_horizon",
+        text: "נראה לי שאצטרך את כל הכסף המושקע במנג'ק עוד X שנים",
+        options: [
+          { text: "בין שנה לשנתיים", score: 1 },
+          { text: "בין 2 ל-5 שנים", score: 2 },
+          { text: "מעל 5 שנים", score: 3 }
+        ]
+      },
+      {
+        id: "market_drop_feeling",
+        text: "אם תהיה מפולת בשוק ההון והתיק שלי יאבד 10% משוויו תוך שבוע, כנראה שארגיש כך:",
+        options: [
+          { text: "יהיה לי קשה מאוד להתמודד עם ההפסד", score: 1 },
+          { text: "אחשוש מהמצב ואחשוב על דרכים לצמצם את הסיכון בהשקעות שלי", score: 2 },
+          { text: "זה יקטין את נכסיי, אך זה לא הפסד בעייתי בעיניי", score: 3 },
+          { text: "בהשקעות לפעמים מפסידים ולפעמים מרוויחים, לא נורא", score: 4 }
+        ]
+      },
+      {
+        id: "market_drop_action",
+        text: "אם יש לי תיק השקעות של 100,000 ש\"ח, ובתוך שבוע שוויו יורד ל-90,000 ש\"ח, סביר להניח שאפעל בצורה הבאה:",
+        options: [
+          { text: "אמכור מיד את כל תיק ההשקעות", score: 1 },
+          { text: "אמכור חלק מתיק ההשקעות כדי לצמצם את הסיכון", score: 2 },
+          { text: "לא אעשה דבר. אמתין מתוך ציפייה לתיקון בשווקים", score: 3 },
+          { text: "אפקיד עוד כספים לחשבון כי אראה בכך הזדמנות", score: 4 }
+        ]
+      },
+      {
+        id: "desired_risk",
+        text: "רמת הסיכון שארצה לקחת בהשקעות שלי:",
+        options: [
+          { text: "סיכון מוגבל, קטן ככל האפשר, שלא יוביל להפסד ניכר", score: 1 },
+          { text: "סיכון מסוים אך לא גבוה כך אולי אפסיד, אבל עם זאת יהיה לי סיכוי לרווח מעל הריבית בבנק", score: 2 },
+          { text: "סיכון גבוה שמצד אחד יש בו סיכון משמעותי, אך מצד שני יש בו גם סיכוי לרווח ניכר", score: 3 },
+          { text: "סיכון גבוה ככל האפשר מתוך הנחה שבטווח הארוך זה ישתלם", score: 4 }
+        ]
+      }
+    ];
+
+    const tracks = [
+      {
+        id: "general",
+        name: "כללי",
+        description: "מסלול מאוזן עם פיזור רחב בין מספר סוגי נכסים."
+      },
+      {
+        id: "overseas",
+        name: "ממוקד חו\"ל",
+        description: "מסלול עם דגש גבוה יותר על שווקים מחוץ לישראל."
+      },
+      {
+        id: "cash",
+        name: "קרן כספית",
+        description: "מסלול סולידי יחסית עם תנודתיות נמוכה יותר."
+      },
+      {
+        id: "ai",
+        name: "ממוקד AI וטכנולוגיה",
+        description: "מסלול עם חשיפה גבוהה יותר לסקטור הטכנולוגיה והחדשנות."
+      },
+      {
+        id: "real_estate",
+        name: "ממוקד נדל\"ן ותשתיות",
+        description: "מסלול עם דגש על נדל\"ן, תשתיות ונכסים ריאליים."
+      },
+      {
+        id: "crypto",
+        name: "משולב קריפטו",
+        description: "מסלול עם רכיב קטן עד בינוני של נכסים דיגיטליים."
+      },
+      {
+        id: "gold",
+        name: "משולב זהב",
+        description: "מסלול עם חשיפה מסוימת לזהב כאפיק גיוון."
+      },
+      {
+        id: "bonds",
+        name: "משולב קרנות גידור באמנות",
+        description: "מסלול ייחודי עם רכיבי גיוון אלטרנטיביים."
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    const selectedAnswers = new Array(questions.length).fill(null);
+    let selectedTrackId = null;
+
+    const questionStep = document.getElementById("question-step");
+    const trackStep = document.getElementById("track-step");
+    const summaryStep = document.getElementById("summary-step");
+
+    const progressText = document.getElementById("progress-text");
+    const progressBar = document.getElementById("progress-bar");
+    const questionTitle = document.getElementById("question-title");
+    const answersContainer = document.getElementById("answers");
+    const backQuestionBtn = document.getElementById("back-question-btn");
+    const nextQuestionBtn = document.getElementById("next-question-btn");
+
+    const trackGrid = document.getElementById("track-grid");
+    const toSummaryBtn = document.getElementById("to-summary-btn");
+
+    function showStep(stepName) {
+      questionStep.classList.add("hidden");
+      trackStep.classList.add("hidden");
+      summaryStep.classList.add("hidden");
+
+      if (stepName === "questions") questionStep.classList.remove("hidden");
+      if (stepName === "tracks") trackStep.classList.remove("hidden");
+      if (stepName === "summary") summaryStep.classList.remove("hidden");
+    }
+
+    function renderQuestion() {
+      const q = questions[currentQuestionIndex];
+      const selected = selectedAnswers[currentQuestionIndex];
+
+      progressText.textContent = `שאלה ${currentQuestionIndex + 1} מתוך ${questions.length}`;
+      progressBar.style.width = `${((currentQuestionIndex + 1) / questions.length) * 100}%`;
+      questionTitle.textContent = q.text;
+      answersContainer.innerHTML = "";
+
+      q.options.forEach((option, idx) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "answer-btn";
+        btn.textContent = option.text;
+
+        if (selected === idx) {
+          btn.classList.add("selected");
+        }
+
+        btn.addEventListener("click", () => {
+          selectedAnswers[currentQuestionIndex] = idx;
+          renderQuestion();
+        });
+
+        answersContainer.appendChild(btn);
+      });
+
+      nextQuestionBtn.classList.toggle("hidden", selected === null);
+      backQuestionBtn.classList.toggle("hidden", currentQuestionIndex === 0);
+      nextQuestionBtn.textContent =
+        currentQuestionIndex === questions.length - 1 ? "המשך לבחירת מסלול" : "המשך";
+    }
+
+    function renderTracks() {
+      trackGrid.innerHTML = "";
+
+      tracks.forEach(track => {
+        const card = document.createElement("div");
+        card.className = "track-card";
+        if (selectedTrackId === track.id) {
+          card.classList.add("selected");
+        }
+
+        card.innerHTML = `
+          <div class="track-name">${track.name}</div>
+          <div class="track-desc">${track.description}</div>
+        `;
+
+        card.addEventListener("click", () => {
+          selectedTrackId = track.id;
+          renderTracks();
+        });
+
+        trackGrid.appendChild(card);
+      });
+
+      toSummaryBtn.classList.toggle("hidden", !selectedTrackId);
+    }
+
+    function getRiskProfile() {
+      const totalScore = selectedAnswers.reduce((sum, answerIndex, index) => {
+        if (answerIndex === null) return sum;
+        return sum + questions[index].options[answerIndex].score;
+      }, 0);
+
+      if (totalScore <= 6) {
+        return {
+          level: "סולידי",
+          className: "risk-badge risk-low",
+          equityExposure: "15%–30%"
+        };
+      }
+
+      if (totalScore <= 11) {
+        return {
+          level: "מאוזן",
+          className: "risk-badge risk-medium",
+          equityExposure: "35%–60%"
+        };
+      }
+
+      return {
+        level: "אגרסיבי",
+        className: "risk-badge risk-high",
+        equityExposure: "65%–90%"
+      };
+    }
+
+    function getSelectedTrack() {
+      return tracks.find(track => track.id === selectedTrackId) || null;
+    }
+
+    function renderSummary() {
+      const risk = getRiskProfile();
+      const track = getSelectedTrack();
+
+      document.getElementById("summary-risk").innerHTML =
+        `<span class="${risk.className}">${risk.level}</span>`;
+
+      document.getElementById("summary-track").textContent =
+        track ? track.name : "לא נבחר מסלול";
+
+      document.getElementById("summary-equity").textContent =
+        risk.equityExposure;
+
+      const horizonAnswerIndex = selectedAnswers[0];
+      document.getElementById("summary-horizon").textContent =
+        horizonAnswerIndex !== null
+          ? questions[0].options[horizonAnswerIndex].text
+          : "-";
+
+      const answersList = document.getElementById("summary-answers");
+      answersList.innerHTML = "";
+
+      questions.forEach((question, index) => {
+        const li = document.createElement("li");
+        const answerIndex = selectedAnswers[index];
+        li.textContent =
+          answerIndex !== null
+            ? `${question.text} — ${question.options[answerIndex].text}`
+            : `${question.text} — לא נבחרה תשובה`;
+        answersList.appendChild(li);
+      });
+      const portfolioNameInput = document.getElementById("portfolio-name-input");
+       if (portfolioNameInput && !portfolioNameInput.value) {
+       portfolioNameInput.value = "התיק שלי";
+      }
+    }
+
+    nextQuestionBtn.addEventListener("click", () => {
+      if (selectedAnswers[currentQuestionIndex] === null) return;
+
+      if (currentQuestionIndex < questions.length - 1) {
+        currentQuestionIndex += 1;
+        renderQuestion();
+        return;
+      }
+
+      renderTracks();
+      showStep("tracks");
+    });
+
+    backQuestionBtn.addEventListener("click", () => {
+      if (currentQuestionIndex > 0) {
+        currentQuestionIndex -= 1;
+        renderQuestion();
+      }
+    });
+
+    document.getElementById("back-to-questions-btn").addEventListener("click", () => {
+      showStep("questions");
+      renderQuestion();
+    });
+
+    toSummaryBtn.addEventListener("click", () => {
+      if (!selectedTrackId) return;
+      renderSummary();
+      showStep("summary");
+    });
+
+    document.getElementById("back-to-tracks-btn").addEventListener("click", () => {
+      renderTracks();
+      showStep("tracks");
+    });
+
+document.getElementById("approve-profile-btn").addEventListener("click", () => {
+  const portfolioNameInput = document.getElementById("portfolio-name-input");
+  const portfolioName = (portfolioNameInput?.value || "").trim();
+
+  if (!portfolioName) {
+    alert("נא להזין שם לתיק ההשקעות");
+    return;
+  }
+
+  const risk = getRiskProfile();
+  const track = getSelectedTrack();
+
+  const profileData = {
+    id: Date.now(),
+    portfolio_name: portfolioName,
+    created_at: new Date().toISOString(),
+    questions: questions.map((question, index) => ({
+      question: question.text,
+      answer:
+        selectedAnswers[index] !== null
+          ? question.options[selectedAnswers[index]].text
+          : null
+    })),
+    risk_profile: risk.level,
+    recommended_equity_exposure: risk.equityExposure,
+    selected_track: track ? track.name : null
+  };
+
+  const existingProfiles =
+    JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+  existingProfiles.push(profileData);
+
+  localStorage.setItem(
+    "saved_portfolio_profiles",
+    JSON.stringify(existingProfiles)
+  );
+
+  localStorage.setItem(
+    "portfolio_onboarding_profile",
+    JSON.stringify(profileData)
+  );
+
+  window.location.href = "app.html";
+});
+
+    renderQuestion();
+    showStep("questions");
+    requireAuth();
+  </script>
+</body>
+</html>

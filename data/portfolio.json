@@ -1,0 +1,54 @@
+[
+  {
+    "position": {
+      "quantity": 6.075,
+      "current_price": 294.06,
+      "current_value": 17864.15,
+      "avg_buy_price": 310.04,
+      "cost_basis": 18835.20
+    },
+    "instrument": {
+      "asset_name": "MTF מחקה S&P500",
+      "asset_type": "mutual_fund",
+      "security_number": "1234567",
+      "exchange": "TASE",
+      "currency": "ILS",
+      "classification": "index_fund"
+    },
+    "analytics": {
+      "equity_exposure": 0.98,
+      "fx_exposure": 0.00,
+      "std_dev_12m": 0.14,
+      "sharpe_ratio": 0.82,
+      "return_12m": 0.081,
+      "return_3y": 0.275,
+      "management_fee": 0.008
+    }
+  },
+  {
+    "position": {
+      "quantity": 10,
+      "current_price": 100,
+      "current_value": 1000,
+      "avg_buy_price": 90,
+      "cost_basis": 900
+    },
+    "instrument": {
+      "asset_name": "קרן אג\"ח לדוגמה",
+      "asset_type": "bond_fund",
+      "security_number": "7654321",
+      "exchange": "TASE",
+      "currency": "ILS",
+      "classification": "bond_fund"
+    },
+    "analytics": {
+      "equity_exposure": 0.45,
+      "fx_exposure": 0.00,
+      "std_dev_12m": 0.05,
+      "sharpe_ratio": 0.40,
+      "return_12m": 0.03,
+      "return_3y": 0.09,
+      "management_fee": 0.004
+    }
+  }
+]
