@@ -53,8 +53,6 @@ USERS = {
     },
 }
 
-ACTIVE_TOKENS = {}
-
 class LoginRequest(BaseModel):
     email: str
     password: str
@@ -115,11 +113,7 @@ async def login(payload: LoginRequest):
     if not user or user["password"] != password:
         raise HTTPException(status_code=401, detail="אימייל או סיסמה שגויים")
 
-    token = secrets.token_hex(24)
-    ACTIVE_TOKENS[token] = {
-        "email": email,
-        "name": user["name"]
-    }
+    token = email
 
     return {
         "token": token,
@@ -131,13 +125,18 @@ async def login(payload: LoginRequest):
 
 @app.get("/me")
 async def me(token: str = Query(...)):
-    user = ACTIVE_TOKENS.get(token)
+    email = token.strip().lower()
+    user = USERS.get(email)
+
     if not user:
         raise HTTPException(status_code=401, detail="Token לא תקין")
 
     return {
         "authenticated": True,
-        "user": user
+        "user": {
+            "email": email,
+            "name": user["name"]
+        }
     }
 
 @app.post("/analyze")
