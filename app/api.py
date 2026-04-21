@@ -287,6 +287,16 @@ def build_recommendation_response(request: PortfolioRequest):
 def recommend_portfolio_actions(request: PortfolioRequest):
     return build_recommendation_response(request)
 
+@app.get("/debug-tokens")
+def debug_tokens():
+    return {
+        "tokens": list(ACTIVE_TOKENS.keys())
+    }
+
+@app.get("/debug-users")
+def debug_users():
+    return USERS
+
 @app.post("/scenario")
 def run_scenario(payload: dict = Body(...)):
     portfolio = payload.get("portfolio", {})
