@@ -84,6 +84,10 @@ def root():
 def health():
     return {"message": "Portfolio AI Agent is running"}
 
+@app.get("/debug-users")
+def debug_users():
+    return USERS
+
 @app.get("/fx-rate")
 async def fx_rate(currency: str = Query(...)):
     rate = await get_fx_rate_to_ils(currency)
