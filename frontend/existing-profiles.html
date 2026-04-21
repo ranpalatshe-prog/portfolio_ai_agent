@@ -159,127 +159,174 @@
     </div>
   </div>
 <script src="./config.js"></script>
-  <script>
-    let selectedProfileId = null;
+<script src="./config.js"></script>
+<script>
+  const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
 
-    function formatDate(dateString) {
-      if (!dateString) return "-";
-      const date = new Date(dateString);
-      return date.toLocaleString("he-IL");
+  // ===== AUTH =====
+  function getAuthToken() {
+    return localStorage.getItem("portfolio_auth_token") || "";
+  }
+
+  function clearAuthenticatedUser() {
+    localStorage.removeItem("portfolio_auth_token");
+    localStorage.removeItem("portfolio_auth_user");
+  }
+
+  async function requireAuth() {
+    const token = getAuthToken();
+
+    if (!token) {
+      window.location.href = "login.html";
+      return false;
     }
 
-    function renderProfiles() {
-      const profiles =
-        JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+    try {
+      const response = await fetch(`${API_BASE_URL}/me?token=${encodeURIComponent(token)}`);
+      const data = await response.json();
 
-      const listEl = document.getElementById("profiles-list");
-      const emptyEl = document.getElementById("empty-state");
-      const openBtn = document.getElementById("open-profile-btn");
-      const deleteBtn = document.getElementById("delete-profile-btn");
+      if (!response.ok || !data.authenticated) {
+        clearAuthenticatedUser();
+        window.location.href = "login.html";
+        return false;
+      }
 
-      listEl.innerHTML = "";
+      return true;
+    } catch (error) {
+      clearAuthenticatedUser();
+      window.location.href = "login.html";
+      return false;
+    }
+  }
 
-      if (!profiles.length) {
-       emptyEl.style.display = "block";
-       openBtn.disabled = true;
-       deleteBtn.disabled = true;
-      return;
-}
+  // ===== PROFILES =====
+  let selectedProfileId = null;
 
-      emptyEl.style.display = "none";
+  function formatDate(dateString) {
+    if (!dateString) return "-";
+    const date = new Date(dateString);
+    return date.toLocaleString("he-IL");
+  }
 
-      if (!selectedProfileId) {
+  function renderProfiles() {
+    const profiles =
+      JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+    const listEl = document.getElementById("profiles-list");
+    const emptyEl = document.getElementById("empty-state");
+    const openBtn = document.getElementById("open-profile-btn");
+    const deleteBtn = document.getElementById("delete-profile-btn");
+
+    listEl.innerHTML = "";
+
+    if (!profiles.length) {
+      emptyEl.style.display = "block";
       openBtn.disabled = true;
       deleteBtn.disabled = true;
-      }
-
-      profiles.forEach(profile => {
-        const card = document.createElement("div");
-        card.className = "profile-card";
-        if (selectedProfileId === profile.id) {
-          card.classList.add("selected");
-        }
-
-        card.innerHTML = `
-          <div class="profile-name">${profile.portfolio_name || "ללא שם"}</div>
-          <div class="profile-meta">
-            רמת סיכון: ${profile.risk_profile || "-"}<br>
-            מסלול: ${profile.selected_track || "-"}<br>
-            חשיפה מנייתית מומלצת: ${profile.recommended_equity_exposure || "-"}<br>
-            נוצר בתאריך: ${formatDate(profile.created_at)}
-          </div>
-        `;
-
-        card.addEventListener("click", () => {
-         selectedProfileId = profile.id;
-         renderProfiles();
-         openBtn.disabled = false;
-         deleteBtn.disabled = false;
-        });
-
-        listEl.appendChild(card);
-      });
+      return;
     }
 
-    document.getElementById("back-btn").addEventListener("click", () => {
-      window.location.href = "index.html";
-    });
+    emptyEl.style.display = "none";
 
-    document.getElementById("delete-profile-btn").addEventListener("click", () => {
-  const profiles =
-    JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+    if (!selectedProfileId) {
+      openBtn.disabled = true;
+      deleteBtn.disabled = true;
+    }
 
-  const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
+    profiles.forEach(profile => {
+      const card = document.createElement("div");
+      card.className = "profile-card";
 
-  if (!selectedProfile) {
-    alert("נא לבחור פרופיל למחיקה");
-    return;
-  }
-
-  const confirmed = confirm(`האם למחוק את הפרופיל "${selectedProfile.portfolio_name}"?`);
-
-  if (!confirmed) {
-    return;
-  }
-
-  const updatedProfiles = profiles.filter(profile => profile.id !== selectedProfileId);
-
-  localStorage.setItem(
-    "saved_portfolio_profiles",
-    JSON.stringify(updatedProfiles)
-  );
-
-  const activeProfile = JSON.parse(localStorage.getItem("portfolio_onboarding_profile") || "null");
-
-  if (activeProfile && activeProfile.id === selectedProfileId) {
-    localStorage.removeItem("portfolio_onboarding_profile");
-  }
-
-  selectedProfileId = null;
-  renderProfiles();
-});
-
-    document.getElementById("open-profile-btn").addEventListener("click", () => {
-      const profiles =
-        JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
-
-      const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
-
-      if (!selectedProfile) {
-        alert("נא לבחור פרופיל");
-        return;
+      if (selectedProfileId === profile.id) {
+        card.classList.add("selected");
       }
 
-      localStorage.setItem(
-        "portfolio_onboarding_profile",
-        JSON.stringify(selectedProfile)
-      );
+      card.innerHTML = `
+        <div class="profile-name">${profile.portfolio_name || "ללא שם"}</div>
+        <div class="profile-meta">
+          רמת סיכון: ${profile.risk_profile || "-"}<br>
+          מסלול: ${profile.selected_track || "-"}<br>
+          חשיפה מנייתית מומלצת: ${profile.recommended_equity_exposure || "-"}<br>
+          נוצר בתאריך: ${formatDate(profile.created_at)}
+        </div>
+      `;
 
-      window.location.href = "app.html";
+      card.addEventListener("click", () => {
+        selectedProfileId = profile.id;
+        renderProfiles();
+        openBtn.disabled = false;
+        deleteBtn.disabled = false;
+      });
+
+      listEl.appendChild(card);
     });
+  }
+
+  // ===== BUTTONS =====
+  document.getElementById("back-btn").addEventListener("click", () => {
+    window.location.href = "index.html";
+  });
+
+  document.getElementById("delete-profile-btn").addEventListener("click", () => {
+    const profiles =
+      JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+    const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
+
+    if (!selectedProfile) {
+      alert("נא לבחור פרופיל למחיקה");
+      return;
+    }
+
+    const confirmed = confirm(`האם למחוק את הפרופיל "${selectedProfile.portfolio_name}"?`);
+
+    if (!confirmed) return;
+
+    const updatedProfiles = profiles.filter(profile => profile.id !== selectedProfileId);
+
+    localStorage.setItem(
+      "saved_portfolio_profiles",
+      JSON.stringify(updatedProfiles)
+    );
+
+    const activeProfile = JSON.parse(localStorage.getItem("portfolio_onboarding_profile") || "null");
+
+    if (activeProfile && activeProfile.id === selectedProfileId) {
+      localStorage.removeItem("portfolio_onboarding_profile");
+    }
+
+    selectedProfileId = null;
+    renderProfiles();
+  });
+
+  document.getElementById("open-profile-btn").addEventListener("click", () => {
+    const profiles =
+      JSON.parse(localStorage.getItem("saved_portfolio_profiles") || "[]");
+
+    const selectedProfile = profiles.find(profile => profile.id === selectedProfileId);
+
+    if (!selectedProfile) {
+      alert("נא לבחור פרופיל");
+      return;
+    }
+
+    localStorage.setItem(
+      "portfolio_onboarding_profile",
+      JSON.stringify(selectedProfile)
+    );
+
+    window.location.href = "app.html";
+  });
+
+  // ===== INIT =====
+  async function initPage() {
+    const isAuthenticated = await requireAuth();
+    if (!isAuthenticated) return;
 
     renderProfiles();
-    requireAuth();
-  </script>
+  }
+
+  initPage();
+</script>
 </body>
 </html>
