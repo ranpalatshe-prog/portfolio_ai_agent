@@ -43,13 +43,13 @@ app = FastAPI(title="Portfolio AI Agent")
 import os
 
 USERS = {
-    os.getenv("USER1_EMAIL", "").strip().lower(): {
-        "password": os.getenv("USER1_PASSWORD", "").strip(),
-        "name": os.getenv("USER1_NAME", "User 1").strip(),
+    "1234": {
+        "password": "1234",
+        "name": "Ran",
     },
-    os.getenv("USER2_EMAIL", "").strip().lower(): {
-        "password": os.getenv("USER2_PASSWORD", "").strip(),
-        "name": os.getenv("USER2_NAME", "User 2").strip(),
+    "5678": {
+        "password": "5678",
+        "name": "Dafy",
     },
 }
 
