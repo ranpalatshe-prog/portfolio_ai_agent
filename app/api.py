@@ -43,12 +43,12 @@ app = FastAPI(title="Portfolio AI Agent")
 import os
 
 USERS = {
-    "1234": {
-        "password": "1234",
+    "ranpalatshe@gmail.com": {
+        "password": "Rd!0507821117",
         "name": "Ran",
     },
-    "5678": {
-        "password": "5678",
+    "dafyshay@gmail.com": {
+        "password": "Rd!0507821117",
         "name": "Dafy",
     },
 }
@@ -285,12 +285,6 @@ def build_recommendation_response(request: PortfolioRequest):
 @app.post("/recommend")
 def recommend_portfolio_actions(request: PortfolioRequest):
     return build_recommendation_response(request)
-
-@app.get("/debug-tokens")
-def debug_tokens():
-    return {
-        "tokens": list(ACTIVE_TOKENS.keys())
-    }
 
 @app.get("/debug-users")
 def debug_users():
