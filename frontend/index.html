@@ -113,7 +113,7 @@ function logoutFromApp() {
   window.location.href = "login.html";
 }
 
-const API_BASE_URL = "http://127.0.0.1:8000";
+const API_BASE_URL = window.APP_CONFIG.API_BASE_URL;
 
 function getAuthToken() {
   return localStorage.getItem("portfolio_auth_token") || "";
